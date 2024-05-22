@@ -27,6 +27,8 @@ const client = new Client({
 }); //必要な権限を書いている
 
 const id_log_channel = settings.LogChannel;
+const key_stat_channel = settings.KeyStatChannel;   //鍵の状態を表示するチャンネルID
+const key_log_channel = settings.KeyLogChannel;     //監視対象である鍵の開閉ログのチャンネルID
 const token = settings.Token;
 
 const string2boolean = (value: string | null | undefined): boolean => {
@@ -263,4 +265,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
     messagingSlack(createMessage(username)(label))(settings.Slack.WebhookUrl);
   }
 });
+
+//鍵の開閉情報をログから受け取り、チャンネル名に開閉情報を表示させる
+const key_log_ptn = {"opened": "🟢", "closed":"🟠"};
+
+client.on("messageCreate", (message) => {
+  if (message.author.id === client.user.id) return; //自分自身のメッセージの場合、無視する (現段階では必要ないが一応)
+  //鍵の開閉ログのメッセージだった場合
+  if (message.channel.id === key_log_channel && message.webhookId && message.author.username == "部室鍵") {
+    //メッセージが"opened"、もしくは"closed"かどうか判定
+    if (key_log_ptn[message.content]) {
+      client.chennel.cache.get(key_stat_channel).setName(`${key_log_ptn[message.content]} Key State: ${message.content}`); //鍵の開閉状態をチャンネル名に反映
+    }
+  }
+});
+
 client.login(token);
