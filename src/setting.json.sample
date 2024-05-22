@@ -1,6 +1,7 @@
 {
     "LogChannel":"",
     "KeyStateChannel": "",
+    "KeyLogChannel": "",
     "Token":"",
     "ModeConsole":"false",
     "Slack":{
