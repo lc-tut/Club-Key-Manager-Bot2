@@ -3,7 +3,7 @@
  * 鍵の操作ボタンが押された時の処理を管理
  */
 
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
+import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey ,minutesToMs} from "../utils";
 import { mapButtons, mapLabel, mapOpers, mapPresence, borrowButton } from "../discord/discordUI";
@@ -74,7 +74,7 @@ export const handleButtonInteraction = async (
 
   // 鍵操作の結果を表示する埋め込みメッセージを作成
   const embed = new EmbedBuilder()
-    .setColor(0x0099ff)
+    .setColor(Colors.Green)
     .setAuthor({ name: username, iconURL: userIconUrl ?? undefined })
     .setTitle(`${label}`)
     .setTimestamp();

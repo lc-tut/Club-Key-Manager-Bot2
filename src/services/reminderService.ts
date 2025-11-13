@@ -1,4 +1,4 @@
-import { TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel } from "discord.js";
+import { TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel, Colors } from "discord.js";
 import { BorrowerInfo, Key } from "../types";
 import { minutesToMs, msToMinutes} from "../utils"; 
 import { reminderTimeMinutes, isReminderEnabled } from "../config";
@@ -59,7 +59,7 @@ export const sendReminderMessage = async (
     if (channel && channel.isTextBased()) {
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
-        .setColor(0xff0000) // 赤色で警告を表現
+        .setColor(Colors.Gold) // 黄色で警告を表現
         .setTitle(`⌛️返却リマインダー (${count}回目)`)
         .setDescription(
           `<@${userId}> さん、鍵を借りてから${reminderTimeMinutes * count}分が経過しました。\n返却を忘れていませんか？`

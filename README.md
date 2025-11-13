@@ -81,6 +81,12 @@ docker compose restart
 - `/status` : 現在のアラーム設定を表示
 - `/owner @ユーザー` : 鍵の持ち主を変更
 
+### アクセントカラーの意味
+- Colors.Blue	#3498DB	情報 (Info)
+- Colors.Green	#57F287	成功 (Success)
+- Colors.Gold	#F1C40F	警告・強調 (Warning)
+- Colors.Red	#ED4245	エラー (Error)
+
 ## ファイル構成
 
 ```

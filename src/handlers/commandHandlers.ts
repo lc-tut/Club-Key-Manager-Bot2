@@ -3,7 +3,7 @@
  * 各コマンドの処理ロジックを管理
  */
 
-import { ChatInputCommandInteraction, EmbedBuilder} from "discord.js";
+import { ChatInputCommandInteraction, Colors, EmbedBuilder} from "discord.js";
 import { Key } from "../types";
 import {
   reminderTimeMinutes,
@@ -57,7 +57,7 @@ export const handleBorrowCommand = async (
 
     // 埋め込みメッセージを作成
     const embed = new EmbedBuilder()
-      .setColor(0x0099ff)
+      .setColor(Colors.Green)
       .setAuthor({ name: username, iconURL: userIconUrl ?? undefined })
       .setTitle("借りました")
       .setTimestamp();
@@ -275,7 +275,7 @@ export const handleStatusCommand = async (
   keyStatus: Key
 ): Promise<void> => {
   const statusEmbed = new EmbedBuilder()
-    .setColor(0x00ff00)
+    .setColor(Colors.Blue)
     .setTitle("⚙️ アラーム設定状況")
     .addFields(
       { name: "リマインダー機能", value: isReminderEnabled ? "✅ ON" : "❌ OFF", inline: true },
@@ -370,7 +370,7 @@ export const handleOwnerCommand = async (
 
   // 持ち主変更を通知するメッセージを作成
   const changeEmbed = new EmbedBuilder()
-    .setColor(0xffa500)
+    .setColor(Colors.Green)
     .setTitle("🔄 鍵の持ち主変更")
     .setDescription(
       `鍵の持ち主を変更しました\n<@${oldOwnerId}> → <@${newOwner.id}>\n${isReminderEnabled ? `⏰ リマインダー: ${reminderTimeMinutes}分後に通知` : ""}`
