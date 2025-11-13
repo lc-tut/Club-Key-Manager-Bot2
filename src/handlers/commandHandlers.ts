@@ -26,6 +26,7 @@ import {
 import { schedule20OClockCheck } from "../services/scheduledCheck";
 import { client } from "../discord/client";
 import { mapButtons, borrowButton, mapPresence } from "../discord/discordUI";
+import { minutesToMs } from "../utils";
 
 /**
  * 現在の鍵の状態に応じたボタンを取得するヘルパー関数
@@ -336,16 +337,16 @@ export const handleOwnerCommand = async (
         client,
         newOwner.id,
         newOwnerName,
-        interaction.channelId!,
+        interaction.channelId,
         mapButtons,
         borrowButton
       );
-    }, reminderTimeMinutes * 60 * 1000);
+    }, minutesToMs(reminderTimeMinutes));
 
     setBorrowerInfo({
       userId: newOwner.id,
       username: newOwnerName,
-      channelId: interaction.channelId!,
+      channelId: interaction.channelId,
       timerId: timerId,
       borrowedAt: now,
       reminderCount: 0,
@@ -359,7 +360,7 @@ export const handleOwnerCommand = async (
     setBorrowerInfo({
       userId: newOwner.id,
       username: newOwnerName,
-      channelId: interaction.channelId!,
+      channelId: interaction.channelId,
       timerId: null,
       borrowedAt: Date.now(),
       reminderCount: 0,

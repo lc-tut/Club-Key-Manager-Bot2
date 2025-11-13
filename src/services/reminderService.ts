@@ -1,5 +1,6 @@
 import { TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder } from "discord.js";
 import { BorrowerInfo, Key } from "../types";
+import { minutesToMs } from "../utils"; 
 import { reminderTimeMinutes, isReminderEnabled } from "../config";
 import { Client} from "discord.js";
 import { getKeyStatus } from "../main";
@@ -89,7 +90,7 @@ export const sendReminderMessage = async (
             mapButtons,
             borrowButton
           );
-        }, reminderTimeMinutes * 60 * 1000); // 分をミリ秒に変換
+        }, minutesToMs(reminderTimeMinutes)); // 分をミリ秒に変換
 
         borrowerInfo.timerId = timerId;
         console.log(`次のリマインダーを${reminderTimeMinutes}分後にスケジュールしました。`);
@@ -155,7 +156,7 @@ export const rescheduleReminderTimer = (
         mapButtons,
         borrowButton
       );
-    }, remainingMinutes * 60 * 1000);
+    }, minutesToMs(remainingMinutes));
 
     borrowerInfo.timerId = timerId;
     console.log(`リマインダーを再スケジュールしました。${Math.floor(remainingMinutes)}分後に通知します。`);

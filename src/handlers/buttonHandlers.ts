@@ -5,7 +5,7 @@
 
 import { ButtonInteraction, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
-import { isKey } from "../utils";
+import { isKey ,minutesToMs} from "../utils";
 import { mapButtons, mapLabel, mapOpers, mapPresence, borrowButton } from "../discord/discordUI";
 import {
   sendReminderMessage,
@@ -134,7 +134,7 @@ export const handleButtonInteraction = async (
           mapButtons,
           borrowButton
         );
-      }, reminderTimeMinutes * 60 * 1000);
+      }, minutesToMs(reminderTimeMinutes));
 
       setBorrowerInfo({
         userId: interaction.user.id,

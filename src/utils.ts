@@ -1,6 +1,24 @@
 import { Key } from "./types";
 
 /**
+ * ミリ秒を分に変換する関数
+ * @param ms - ミリ秒
+ * @returns 分
+ */
+export const msToMinutes = (ms: number): number => {
+  return ms / 1000 / 60;
+};
+
+/**
+ * 分をミリ秒に変換する関数
+ * @param minutes - 分
+ * @returns ミリ秒
+ */
+export const minutesToMs = (minutes: number): number => {
+  return minutes * 60 * 1000;
+};
+
+/**
  * 文字列をboolean型に変換する関数
  * "true"または"1"の場合にtrueを返し、それ以外はfalseを返す
  * 

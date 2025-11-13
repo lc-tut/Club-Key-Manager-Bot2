@@ -1,9 +1,10 @@
 import { TextChannel, EmbedBuilder, ActionRowBuilder, ButtonBuilder } from "discord.js";
-import { Key, BorrowerInfo } from "../types";
+import { Key } from "../types";
 import { checkHour, checkMinute, isScheduledCheckEnabled } from "../config";
 import { borrowerInfo } from "./reminderService";
 import { Client} from "discord.js";
 import { getKeyStatus } from "../main";
+import { msToMinutes } from "../utils";
 // 定時チェックのタイマーID
 let scheduledCheckTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -85,7 +86,7 @@ export const getMillisecondsUntil20OClock = (): number => {
   }
 
   const diff = target.getTime() - now.getTime();
-  console.log(`時間差（ミリ秒）: ${diff}, 分: ${Math.round(diff / 1000 / 60)}`);
+  console.log(`時間差（ミリ秒）: ${diff}, 分: ${Math.round(msToMinutes(diff))}`);
 
   return diff;
 };
@@ -113,7 +114,7 @@ export const schedule20OClockCheck = (
   const scheduleNext = () => {
     const msUntil20 = getMillisecondsUntil20OClock();
     
-    console.log(`次の定時チェックまで: ${Math.round(msUntil20 / 1000 / 60)}分 (${checkHour}時${checkMinute}分)`);
+    console.log(`次の定時チェックまで: ${Math.round(msToMinutes(msUntil20))}分 (${checkHour}時${checkMinute}分)`);
 
     // タイマーを設定
     scheduledCheckTimerId = setTimeout(() => {
