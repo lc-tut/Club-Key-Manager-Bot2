@@ -3,7 +3,7 @@
  * 部室の鍵管理を行うDiscord Bot
  */
 
-import { Events, REST, Routes, TextChannel } from "discord.js";
+import { Events, Interaction, REST, Routes, TextChannel } from "discord.js";
 import { client } from "./discord/client";
 import { token, idLogChannel } from "./config";
 import { commands } from "./discord/commands";
@@ -45,13 +45,17 @@ export const setKeyStatus = (newStatus: Key): void => {
 client.once("ready", async (bot) => {
   console.log("Ready!");
 
-  // ボットのユーザー名をコンソールに表示
-  if (client.user) {
-    console.log(client.user.tag);
+  // client.userが存在することを確認
+  if (!client.user) {
+    console.error("クライアントユーザー情報が取得できませんでした");
+    return;
   }
 
+  // ボットのユーザー名をコンソールに表示
+  console.log(`${client.user.tag} としてログインしました！`);
+
   // ボットのステータスを非公開（invisible）に設定
-  client.user?.setPresence({
+  client.user.setPresence({
     status: "invisible",
     activities: [],
   });
@@ -61,9 +65,10 @@ client.once("ready", async (bot) => {
 
   try {
     console.log("スラッシュコマンドを登録しています...");
+    
     // スラッシュコマンドをDiscord APIに登録
     await rest.put(
-      Routes.applicationCommands(client.user!.id),
+      Routes.applicationCommands(client.user.id),
       { body: commands }
     );
     console.log("スラッシュコマンドの登録が完了しました。");
@@ -89,9 +94,9 @@ client.once("ready", async (bot) => {
 });
 
 /**
- * インタラクション（ボタンクリックやスラッシュコマンド）が発生した時のイベントハンドラー
+ * インタラクション(ボタンクリックやスラッシュコマンド)が発生した時のイベントハンドラー
  */
-client.on(Events.InteractionCreate, async (interaction) => {
+client.on(Events.InteractionCreate, async (interaction: Interaction) => {
   // ==============================
   // スラッシュコマンドの処理
   // ==============================
