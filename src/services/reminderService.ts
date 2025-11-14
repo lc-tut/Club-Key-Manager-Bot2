@@ -1,6 +1,6 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel, Colors } from "discord.js";
 import { BorrowerInfo, Key } from "../types";
-import { minutesToMs, msToMinutes} from "../utils";
+import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
 import { Client } from "discord.js";
 import { getKeyStatus } from "../main";
@@ -31,19 +31,19 @@ export const sendReminderMessage = async (
 ) => {
   // 常に最新の鍵の状態を取得
   const keyStatus = getKeyStatus();
-  
+
   // 鍵が既に返却されている場合は送信しない
   if (keyStatus === "RETURN") {
     console.log("鍵が既に返却されているため、リマインダーを送信しません。");
     return;
   }
-  
+
   // リマインダー機能がOFFの場合は送信しない
   if (!config.isReminderEnabled) {
     console.log("リマインダー機能がOFFのため、送信をスキップしました。");
     return;
   }
-  
+
   // 借りた人の情報がない場合は送信できない
   if (!borrowerInfo) {
     console.log("借りた人の情報がないため、リマインダーを送信できません。");
@@ -53,7 +53,7 @@ export const sendReminderMessage = async (
   // リマインダー送信回数をカウントアップ
   borrowerInfo.reminderCount++;
   const count = borrowerInfo.reminderCount;
-  
+
   try {
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
@@ -137,7 +137,7 @@ export const rescheduleReminderTimer = (
   // 借りてからの経過時間を計算（分単位）
   const now = Date.now();
   const elapsedMinutes = msToMinutes(now - borrowerInfo.borrowedAt);
-  
+
   // 次のリマインダーまでの時間を計算
   const nextReminderAt = (borrowerInfo.reminderCount + 1) * config.reminderTimeMinutes;
   const remainingMinutes = nextReminderAt - elapsedMinutes;

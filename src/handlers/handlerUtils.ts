@@ -1,4 +1,4 @@
-    import { ButtonInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { BorrowerInfo } from "../types";
 import { config } from "../config";
 import { setBorrowerInfo, clearReminderTimer } from "../services/reminderService";

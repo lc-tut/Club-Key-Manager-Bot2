@@ -67,8 +67,8 @@ export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
     "BORROW",
     !modeConsole
       ? new ActionRowBuilder<ButtonBuilder>()
-          .addComponents(openButton)
-          .addComponents(returnButton)
+        .addComponents(openButton)
+        .addComponents(returnButton)
       : new ActionRowBuilder<ButtonBuilder>().addComponents(returnButton),
   ],
   // 開けた状態: 「閉める」ボタンのみ表示
@@ -100,22 +100,22 @@ export const mapOpers: Map<Key, OperKey> = new Map([
  */
 export const getButtons = (keyStatus: Key, isReminderEnabled: boolean): ActionRowBuilder<ButtonBuilder> => {
   const reminderButton = createReminderToggleButton(isReminderEnabled);
-  
+
   if (keyStatus === "BORROW") {
     // 借りた状態: 操作卓モードでない場合は「開ける」「返す」「リマインダー」、操作卓モードの場合は「返す」「リマインダー」
     return !modeConsole
       ? new ActionRowBuilder<ButtonBuilder>()
-          .addComponents(openButton, returnButton, reminderButton)
+        .addComponents(openButton, returnButton, reminderButton)
       : new ActionRowBuilder<ButtonBuilder>()
-          .addComponents(returnButton, reminderButton);
+        .addComponents(returnButton, reminderButton);
   }
-  
+
   if (keyStatus === "CLOSE") {
     // 閉めた状態: 「返す」「開ける」「リマインダー」を表示
     return new ActionRowBuilder<ButtonBuilder>()
       .addComponents(returnButton, openButton, reminderButton);
   }
-  
+
   const buttons = mapButtons.get(keyStatus);
   if (!buttons) {
     throw Error(`Buttons for status ${keyStatus} not found`);

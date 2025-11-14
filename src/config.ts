@@ -41,16 +41,16 @@ export const modeConsole = string2boolean(settings.ModeConsole);
 export const config = {
   // 鍵の返却リマインダー時間（分）、デフォルトは60分
   reminderTimeMinutes: settings.ReminderTimeMinutes || 60,
-  
+
   // 定時チェックの時刻（時）、デフォルトは20時
   checkHour: settings.checkHour || 20,
-  
+
   // 定時チェックの時刻（分）、デフォルトは0分
   checkMinute: settings.checkMinute || 0,
-  
+
   // リマインダー機能のON/OFF（初期状態はON）
   isReminderEnabled: true,
-  
+
   // 定時チェック機能のON/OFF（初期状態はON）
   isScheduledCheckEnabled: true,
 };

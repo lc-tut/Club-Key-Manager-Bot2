@@ -1,4 +1,4 @@
-/**
+﻿/**
  * スラッシュコマンドのハンドラー
  * 各コマンドの処理ロジックを管理
  */
@@ -30,7 +30,7 @@ import { minutesToMs } from "../utils";
 export const getKeyButtonsForCommand = (keyStatus: Key) => {
   try {
     return getButtons(keyStatus, config.isReminderEnabled);
-  } catch (error) { 
+  } catch (error) {
     console.error(`Failed to get buttons for key status ${keyStatus}:`, error);
     return mapButtons.get("RETURN")!;
   }

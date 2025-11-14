@@ -2,7 +2,7 @@ import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Colors } from "discord.j
 import { Key } from "../types";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
-import { Client} from "discord.js";
+import { Client } from "discord.js";
 import { getKeyStatus } from "../main";
 import { msToMinutes } from "../utils";
 import { getButtons } from "../discord/discordUI";
@@ -30,7 +30,7 @@ export const check20OClock = async (
     console.log("定時チェック機能がOFFのため、チェックをスキップしました。");
     return;
   }
-  
+
   // 鍵がRETURN状態でない場合（借りられている場合）
   if (keyStatus !== "RETURN" && borrowerInfo) {
     try {
@@ -114,7 +114,7 @@ export const schedule20OClockCheck = (
   // 次のチェックをスケジュールする内部関数
   const scheduleNext = () => {
     const msUntil20 = getMillisecondsUntil20OClock();
-    
+
     console.log(`次の定時チェックまで: ${Math.round(msUntil20 / 1000 / 60)}分 (${config.checkHour}時${config.checkMinute}分)`);
 
     // タイマーを設定
@@ -123,6 +123,6 @@ export const schedule20OClockCheck = (
       scheduleNext(); // 次の日のチェックをスケジュール
     }, msUntil20);
   };
-  
+
   scheduleNext();
 };

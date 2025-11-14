@@ -36,10 +36,10 @@ export const handleButtonInteraction = async (
   // リマインダートグルボタンの特別処理
   if (btn === "TOGGLE_REMINDER") {
     const newState = toggleReminderEnabled();
-    
+
     // ユーザー情報を取得
     const { username, userIconUrl } = getUserInfo(interaction);
-    
+
     // 現在のボタンセットを取得（鍵の状態は変更しない、リマインダー状態は更新後の値を使用）
     const buttonSet = getButtons(keyStatus, newState);
 
@@ -92,10 +92,10 @@ export const handleButtonInteraction = async (
 
   // ボットのステータスを更新
   interaction.client.user?.setPresence(presence);
-  
+
   // ユーザー情報を取得
   const { username, userIconUrl } = getUserInfo(interaction);
-  
+
   // 鍵操作の結果を表示する埋め込みメッセージを作成
   const embed = new EmbedBuilder()
     .setColor(Colors.Green)

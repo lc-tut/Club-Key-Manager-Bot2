@@ -65,7 +65,7 @@ client.once("ready", async (bot) => {
 
   try {
     console.log("スラッシュコマンドを登録しています...");
-    
+
     // スラッシュコマンドをDiscord APIに登録
     await rest.put(
       Routes.applicationCommands(client.user.id),
