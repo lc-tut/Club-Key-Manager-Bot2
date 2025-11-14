@@ -57,7 +57,7 @@ export const sendReminderMessage = async (
   try {
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
-    if (channel && channel.isTextBased()) {
+    if (channel && channel.isSendable()) {
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
         .setColor(Colors.Gold) // 黄色で警告を表現
