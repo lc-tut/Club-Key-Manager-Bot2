@@ -1,9 +1,8 @@
 // 鍵の状態を表す型定義
-// BORROW: 借りている状態
 // OPEN: 部屋を開けている状態
 // CLOSE: 部屋を閉めている状態（まだ鍵は返却していない）
 // RETURN: 返却済みの状態
-export type Key = "BORROW" | "OPEN" | "CLOSE" | "RETURN";
+export type Key = "OPEN" | "CLOSE" | "RETURN";
 
 // 鍵を借りたユーザーの情報を保存する型定義
 export type BorrowerInfo = {

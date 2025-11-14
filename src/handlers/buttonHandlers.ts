@@ -34,11 +34,6 @@ export const handleButtonInteraction = async (
   // 押されたボタンのカスタムIDを取得
   const btn = interaction.customId;
 
-  // カスタムIDがKey型かどうかを確認
-  if (!isKey(btn)) {
-    throw Error("buttonInteraction.customId is not Key");
-  }
-
   // 押されたボタンに対応する操作関数を取得
   const oper = mapOpers.get(btn);
   if (!oper) {
@@ -80,7 +75,7 @@ export const handleButtonInteraction = async (
     .setTimestamp();
 
   // 鍵を借りた時の場合は、リマインダー設定情報を追加
-  if (btn === "BORROW" && newStatus === "BORROW") {
+  if (btn === "BORROW_KEY" && newStatus === "CLOSE") {
     if (config.isReminderEnabled) {
       embed.addFields({
         name: "⏰ リマインダー設定",
@@ -118,7 +113,7 @@ export const handleButtonInteraction = async (
   // ==============================
   // 鍵を借りた時の処理
   // ==============================
-  if (btn === "BORROW" && newStatus === "BORROW") {
+  if (btn === "BORROW_KEY" && newStatus === "CLOSE") {
     // 既存のタイマーがあればクリア
     clearReminderTimer();
 
