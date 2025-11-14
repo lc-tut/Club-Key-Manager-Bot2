@@ -7,11 +7,17 @@ import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
 import { getUserInfo } from "./handlerUtils";
-import { mapButtons, mapLabel, mapOpers, mapPresence, borrowButton } from "../discord/discordUI";
+import {
+  mapButtons,
+  mapLabel,
+  mapOpers,
+  mapPresence,
+  borrowButton,
+} from "../discord/discordUI";
 import {
   sendReminderMessage,
   clearReminderTimer,
-  setBorrowerInfo
+  setBorrowerInfo,
 } from "../services/reminderService";
 import { config } from "../config";
 import { client } from "../discord/client";
@@ -68,10 +74,10 @@ export const handleButtonInteraction = async (
 
   // ボットのステータスを更新
   interaction.client.user?.setPresence(presence);
-  
+
   // ユーザー情報を取得
   const { username, userIconUrl } = getUserInfo(interaction);
-  
+
   // 鍵操作の結果を表示する埋め込みメッセージを作成
   const embed = new EmbedBuilder()
     .setColor(Colors.Green)
@@ -85,13 +91,17 @@ export const handleButtonInteraction = async (
       embed.addFields({
         name: "⏰ リマインダー設定",
         value: `リマインダーが有効です\n・間隔: ${config.reminderTimeMinutes}分ごと\n・定時チェック: ${config.checkHour}時${config.checkMinute}分`,
-        inline: false
+        inline: false,
       });
     } else {
       embed.addFields({
         name: "⏰ リマインダー設定",
-        value: `リマインダーは無効です\n・定時チェック: ${config.isScheduledCheckEnabled ? `${config.checkHour}時${config.checkMinute}分` : "無効"}`,
-        inline: false
+        value: `リマインダーは無効です\n・定時チェック: ${
+          config.isScheduledCheckEnabled
+            ? `${config.checkHour}時${config.checkMinute}分`
+            : "無効"
+        }`,
+        inline: false,
       });
     }
   }
@@ -157,9 +167,7 @@ export const handleButtonInteraction = async (
         borrowedAt: Date.now(),
         reminderCount: 0,
       });
-      console.log(
-        `${username}が鍵を借りました。リマインダー機能はOFFです。`
-      );
+      console.log(`${username}が鍵を借りました。リマインダー機能はOFFです。`);
     }
   }
 

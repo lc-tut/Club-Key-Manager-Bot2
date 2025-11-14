@@ -16,7 +16,7 @@ import {
   handleReminderTimeCommand,
   handleCheckTimeCommand,
   handleStatusCommand,
-  handleOwnerCommand
+  handleOwnerCommand,
 } from "./handlers/commandHandlers";
 import { handleButtonInteraction } from "./handlers/buttonHandlers";
 import { Key } from "./types";
@@ -65,12 +65,11 @@ client.once("ready", async (bot) => {
 
   try {
     console.log("スラッシュコマンドを登録しています...");
-    
+
     // スラッシュコマンドをDiscord APIに登録
-    await rest.put(
-      Routes.applicationCommands(client.user.id),
-      { body: commands }
-    );
+    await rest.put(Routes.applicationCommands(client.user.id), {
+      body: commands,
+    });
     console.log("スラッシュコマンドの登録が完了しました。");
   } catch (error) {
     console.error("スラッシュコマンドの登録に失敗しました:", error);

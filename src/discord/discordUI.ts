@@ -1,7 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { Key, OperKey, Presence } from "../types";
 import { modeConsole } from "../config";
-import { borrowKey, openKey, closeKey, returnKey } from "../services/keyOperations";
+import {
+  borrowKey,
+  openKey,
+  closeKey,
+  returnKey,
+} from "../services/keyOperations";
 
 // ボタンを定義
 // 「借りる」ボタン - 緑色（成功）スタイル
@@ -41,10 +46,7 @@ export const mapLabel: Map<Key, string> = new Map([
 // 各状態で表示すべきボタンを管理
 export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
   // 返却済み状態: 「借りる」ボタンのみ表示
-  [
-    "RETURN",
-    new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton),
-  ],
+  ["RETURN", new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton)],
   // 借りた状態: 操作卓モードでない場合は「開ける」と「返す」、操作卓モードの場合は「返す」のみ
   [
     "BORROW",
