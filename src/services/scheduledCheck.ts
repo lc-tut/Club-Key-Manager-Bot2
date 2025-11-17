@@ -12,7 +12,7 @@ let scheduledCheckTimerId: ReturnType<typeof setTimeout> | null = null;
  * 定時チェック関数
  * 設定された時刻（デフォルト20時）に鍵が返却されていない場合、
  * 借りているユーザーに通知を送信する
- * 
+ *
  * @param client - Discordクライアント
  */
 export const check20OClock = async (
@@ -30,9 +30,7 @@ export const check20OClock = async (
   if (keyStatus !== "RETURN" && borrowerInfo) {
     try {
       const channel = await client.channels.fetch(borrowerInfo.channelId);
-      if (channel && channel.isTextBased()) {
-        // メッセージ送受信可能なチャンネルにキャスト
-        const textChannel = channel as TextChannel;
+      if (channel && channel.isSendable()) {
         // 埋め込みメッセージを作成
         const embed = new EmbedBuilder()
           .setColor(Colors.Gold) // 黄色で警告を表現
@@ -46,7 +44,7 @@ export const check20OClock = async (
         const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
         // メッセージを送信
-        await textChannel.send({
+        await channel.send({
           content: `<@${borrowerInfo.userId}>`, // ユーザーにメンション
           embeds: [embed],
           components: [currentButtonSet], // ボタンも一緒に送信
@@ -64,7 +62,7 @@ export const check20OClock = async (
 
 /**
  * 次の定時チェックまでの時間をミリ秒で計算する関数
- * 
+ *
  * @returns 次の定時チェックまでの時間（ミリ秒）
  */
 export const getMillisecondsUntil20OClock = (): number => {

@@ -51,9 +51,7 @@ export const sendReminderMessage = async (
   try {
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
-    if (channel && channel.isTextBased()) {
-      // メッセージ送信可能なチャンネルにキャスト
-      const textChannel = channel as TextChannel;
+    if (channel && channel.isSendable()) {
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
         .setColor(Colors.Gold) // 黄色で警告を表現
@@ -67,7 +65,7 @@ export const sendReminderMessage = async (
       const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
       // メッセージを送信
-      await textChannel.send({
+      await channel.send({
         content: `<@${userId}>`, // ユーザーにメンション
         embeds: [embed],
         components: [currentButtonSet], // ボタンも一緒に送信
