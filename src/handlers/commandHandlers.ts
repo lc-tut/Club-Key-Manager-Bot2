@@ -24,7 +24,7 @@ import { client } from "../discord/client";
 import { mapPresence, getButtons } from "../discord/discordUI";
 import { minutesToMs } from "../utils";
 
-/*
+/**
  * 現在の鍵の状態に応じたボタンを取得するヘルパー関数
  */
 export const getKeyButtonsForCommand = (keyStatus: Key) => {
