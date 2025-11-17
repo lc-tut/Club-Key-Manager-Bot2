@@ -1,4 +1,4 @@
-import { EmbedBuilder, Channel, Colors, TextChannel } from "discord.js";
+import { EmbedBuilder, Channel, Colors } from "discord.js";
 import { BorrowerInfo } from "../types";
 import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
@@ -13,7 +13,7 @@ export let borrowerInfo: BorrowerInfo | null = null;
 /**
  * リマインダーメッセージを送信する関数
  * 指定されたユーザーに鍵の返却を促すメッセージを送信する
- * 
+ *
  * @param client - Discordクライアント
  * @param userId - メッセージを送信するユーザーのDiscord ID
  * @param channelId - メッセージを送信するチャンネルのID

@@ -1,4 +1,4 @@
-import { EmbedBuilder, Colors, TextChannel } from "discord.js";
+import { EmbedBuilder, Colors } from "discord.js";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
 import { Client } from "discord.js";

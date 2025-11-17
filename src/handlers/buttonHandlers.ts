@@ -6,7 +6,7 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
-import { getUserInfo, addReminderSettingsToEmbed, saveBorrowerInfo } from "./handlerUtils";
+import { getUserInfo, saveBorrowerInfo } from "./handlerUtils";
 import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
 import {
   sendReminderMessage,
