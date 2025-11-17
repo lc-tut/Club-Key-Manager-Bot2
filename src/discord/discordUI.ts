@@ -77,8 +77,8 @@ export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
   [
     "CLOSE",
     new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(returnButton)
-        .addComponents(openButton),
+      .addComponents(returnButton)
+      .addComponents(openButton),
   ],
 ]);
 
