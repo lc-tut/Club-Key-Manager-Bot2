@@ -24,7 +24,7 @@ import { client } from "../discord/client";
 import { mapPresence, getButtons } from "../discord/discordUI";
 import { minutesToMs } from "../utils";
 
-/**
+/*
  * 現在の鍵の状態に応じたボタンを取得するヘルパー関数
  */
 export const getKeyButtonsForCommand = (keyStatus: Key) => {
@@ -32,7 +32,7 @@ export const getKeyButtonsForCommand = (keyStatus: Key) => {
     return getButtons(keyStatus, config.isReminderEnabled);
   } catch (error) {
     console.error(`Failed to get buttons for key status ${keyStatus}:`, error);
-    return getButtons("RETURN", config.isReminderEnabled)!;
+    return getButtons("RETURN", config.isReminderEnabled);
   }
 };
 

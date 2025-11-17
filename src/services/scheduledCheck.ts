@@ -1,5 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Colors, TextChannel } from "discord.js";
-import { Key } from "../types";
+import { EmbedBuilder, Colors, TextChannel } from "discord.js";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
 import { Client } from "discord.js";
