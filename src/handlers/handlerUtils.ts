@@ -1,8 +1,7 @@
 import { ButtonInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { BorrowerInfo } from "../types";
 import { config } from "../config";
-import { setBorrowerInfo, clearReminderTimer } from "../services/reminderService";
-import { minutesToMs } from "../utils";
+import { setBorrowerInfo } from "../services/reminderService";
 
 /**
  * インタラクションからユーザー情報を取得するヘルパー関数
@@ -62,17 +61,4 @@ export const saveBorrowerInfo = (
   };
   setBorrowerInfo(borrowerInfo);
   return borrowerInfo;
-};
-
-/**
- * リマインダータイマーを設定するヘルパー関数
- * @param delay - 遅延時間（ミリ秒）
- * @param callback - コールバック関数
- * @returns タイマーID
- */
-export const createReminderTimer = (
-  delay: number,
-  callback: () => void
-): NodeJS.Timeout => {
-  return setTimeout(callback, delay);
 };

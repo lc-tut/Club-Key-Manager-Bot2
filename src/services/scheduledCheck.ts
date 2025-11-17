@@ -1,4 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Colors } from "discord.js";
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Colors, TextChannel } from "discord.js";
 import { Key } from "../types";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
@@ -15,13 +15,9 @@ let scheduledCheckTimerId: ReturnType<typeof setTimeout> | null = null;
  * 借りているユーザーに通知を送信する
  * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const check20OClock = async (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 常に最新の鍵の状態を取得
   const keyStatus = getKeyStatus();
@@ -36,6 +32,8 @@ export const check20OClock = async (
     try {
       const channel = await client.channels.fetch(borrowerInfo.channelId);
       if (channel && channel.isTextBased()) {
+        // メッセージ送受信可能なチャンネルにキャスト
+        const textChannel = channel as TextChannel;
         // 埋め込みメッセージを作成
         const embed = new EmbedBuilder()
           .setColor(Colors.Gold) // 黄色で警告を表現
@@ -49,7 +47,7 @@ export const check20OClock = async (
         const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
         // メッセージを送信
-        await channel.send({
+        await textChannel.send({
           content: `<@${borrowerInfo.userId}>`, // ユーザーにメンション
           embeds: [embed],
           components: [currentButtonSet], // ボタンも一緒に送信
@@ -97,13 +95,9 @@ export const getMillisecondsUntil20OClock = (): number => {
  * 設定された時刻に定期的にチェックを実行するようにタイマーを設定する
  * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const schedule20OClockCheck = (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 既存のタイマーをクリア
   if (scheduledCheckTimerId) {
@@ -119,7 +113,7 @@ export const schedule20OClockCheck = (
 
     // タイマーを設定
     scheduledCheckTimerId = setTimeout(() => {
-      check20OClock(client, mapButtons, borrowButton); // チェックを実行
+      check20OClock(client); // チェックを実行
       scheduleNext(); // 次の日のチェックをスケジュール
     }, msUntil20);
   };

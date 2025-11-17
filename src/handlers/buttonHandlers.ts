@@ -7,7 +7,7 @@ import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
 import { getUserInfo, addReminderSettingsToEmbed, saveBorrowerInfo } from "./handlerUtils";
-import { mapButtons, mapLabel, mapOpers, mapPresence, borrowButton, getButtons } from "../discord/discordUI";
+import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
 import {
   sendReminderMessage,
   clearReminderTimer,
@@ -36,6 +36,11 @@ export const handleButtonInteraction = async (
   // リマインダートグルボタンの特別処理
   if (btn === "TOGGLE_REMINDER") {
     const newState = toggleReminderEnabled();
+
+    // リマインダーOFF時は既存のタイマーをクリア
+    if (!newState) {
+      clearReminderTimer();
+    }
 
     // ユーザー情報を取得
     const { username, userIconUrl } = getUserInfo(interaction);
@@ -140,9 +145,7 @@ export const handleButtonInteraction = async (
         sendReminderMessage(
           client,
           interaction.user.id,
-          interaction.channelId,
-          mapButtons,
-          borrowButton
+          interaction.channelId
         );
       }, minutesToMs(config.reminderTimeMinutes));
 

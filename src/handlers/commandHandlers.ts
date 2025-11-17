@@ -21,7 +21,7 @@ import {
 } from "../services/reminderService";
 import { schedule20OClockCheck } from "../services/scheduledCheck";
 import { client } from "../discord/client";
-import { mapButtons, borrowButton, mapPresence, getButtons } from "../discord/discordUI";
+import { mapPresence, getButtons } from "../discord/discordUI";
 import { minutesToMs } from "../utils";
 
 /**
@@ -32,7 +32,7 @@ export const getKeyButtonsForCommand = (keyStatus: Key) => {
     return getButtons(keyStatus, config.isReminderEnabled);
   } catch (error) {
     console.error(`Failed to get buttons for key status ${keyStatus}:`, error);
-    return mapButtons.get("RETURN")!;
+    return getButtons("RETURN", config.isReminderEnabled)!;
   }
 };
 
@@ -81,9 +81,7 @@ export const handleBorrowCommand = async (
         sendReminderMessage(
           client,
           interaction.user.id,
-          interaction.channelId,
-          mapButtons,
-          borrowButton
+          interaction.channelId
         );
       }, delayMs);
 
@@ -119,9 +117,7 @@ export const handleBorrowCommand = async (
       sendReminderMessage(
         client,
         borrowerInfo!.userId,
-        borrowerInfo!.channelId,
-        mapButtons,
-        borrowButton
+        borrowerInfo!.channelId
       );
     }, delayMs);
 
@@ -193,7 +189,7 @@ export const handleReminderTimeCommand = async (
 
     // 鍵が借りられている場合、リマインダーを再スケジュール
     if (borrowerInfo && keyStatus !== "RETURN") {
-      rescheduleReminderTimer(client, mapButtons, borrowButton);
+      rescheduleReminderTimer(client);
       await interaction.reply({
         content: `リマインダー送信時間を${minutes}分に設定しました。`,
         components: [getKeyButtonsForCommand(keyStatus)],
@@ -223,7 +219,7 @@ export const handleCheckTimeCommand = async (
     setCheckTime(hour, minute);
 
     // スケジュールを即座に再設定
-    schedule20OClockCheck(client, mapButtons, borrowButton);
+    schedule20OClockCheck(client);
 
     await interaction.reply({
       content: `定時チェック時刻を${hour}時${minute}分に設定しました。`,
@@ -300,9 +296,7 @@ export const handleOwnerCommand = async (
       sendReminderMessage(
         client,
         newOwner.id,
-        interaction.channelId,
-        mapButtons,
-        borrowButton
+        interaction.channelId
       );
     }, minutesToMs(config.reminderTimeMinutes));
 

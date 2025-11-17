@@ -1,4 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel, Colors } from "discord.js";
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel, Colors, TextChannel } from "discord.js";
 import { BorrowerInfo, Key } from "../types";
 import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
@@ -16,18 +16,12 @@ export let borrowerInfo: BorrowerInfo | null = null;
  * 
  * @param client - Discordクライアント
  * @param userId - メッセージを送信するユーザーのDiscord ID
- * @param username - ユーザー名
  * @param channelId - メッセージを送信するチャンネルのID
- * @param keyStatus - 現在の鍵の状態
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const sendReminderMessage = async (
   client: Client,
   userId: string,
-  channelId: string,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  channelId: string
 ) => {
   // 常に最新の鍵の状態を取得
   const keyStatus = getKeyStatus();
@@ -58,6 +52,8 @@ export const sendReminderMessage = async (
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {
+      // メッセージ送信可能なチャンネルにキャスト
+      const textChannel = channel as TextChannel;
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
         .setColor(Colors.Gold) // 黄色で警告を表現
@@ -71,7 +67,7 @@ export const sendReminderMessage = async (
       const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
       // メッセージを送信
-      await channel.send({
+      await textChannel.send({
         content: `<@${userId}>`, // ユーザーにメンション
         embeds: [embed],
         components: [currentButtonSet], // ボタンも一緒に送信
@@ -85,9 +81,7 @@ export const sendReminderMessage = async (
           sendReminderMessage(
             client,
             borrowerInfo!.userId,
-            borrowerInfo!.channelId,
-            mapButtons,
-            borrowButton
+            borrowerInfo!.channelId
           );
         }, minutesToMs(config.reminderTimeMinutes)); // 分をミリ秒に変換
 
@@ -116,13 +110,9 @@ export const clearReminderTimer = () => {
  * リマインダー間隔が変更された時などに呼び出される
  * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const rescheduleReminderTimer = (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 借りている人がいない、またはリマインダーがOFFの場合は何もしない
   if (!borrowerInfo || !config.isReminderEnabled) {
@@ -150,9 +140,7 @@ export const rescheduleReminderTimer = (
       sendReminderMessage(
         client,
         borrowerInfo!.userId,
-        borrowerInfo!.channelId,
-        mapButtons,
-        borrowButton
+        borrowerInfo!.channelId
       );
     }, minutesToMs(remainingMinutes));
 
@@ -164,9 +152,7 @@ export const rescheduleReminderTimer = (
     sendReminderMessage(
       client,
       borrowerInfo.userId,
-      borrowerInfo.channelId,
-      mapButtons,
-      borrowButton
+      borrowerInfo.channelId
     );
   }
 };
