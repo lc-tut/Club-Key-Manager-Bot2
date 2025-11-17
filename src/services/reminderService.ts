@@ -1,5 +1,5 @@
 import { EmbedBuilder, Channel, Colors, TextChannel } from "discord.js";
-import { BorrowerInfo, Key } from "../types";
+import { BorrowerInfo } from "../types";
 import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
 import { Client } from "discord.js";
