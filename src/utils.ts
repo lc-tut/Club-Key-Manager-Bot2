@@ -44,10 +44,5 @@ export const string2boolean = (value: string | boolean | null | undefined): bool
  * @returns valueがKey型の値である場合true
  */
 export const isKey = (value: string): value is Key => {
-  return (
-    value === "BORROW" ||
-    value === "OPEN" ||
-    value === "CLOSE" ||
-    value === "RETURN"
-  );
+  return value === "OPEN" || value === "CLOSE" || value === "RETURN";
 };
