@@ -1,9 +1,10 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, Channel, Colors } from "discord.js";
-import { BorrowerInfo, Key } from "../types";
-import { minutesToMs, msToMinutes} from "../utils";
+import { EmbedBuilder, Channel, Colors, TextChannel } from "discord.js";
+import { BorrowerInfo } from "../types";
+import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
 import { Client } from "discord.js";
 import { getKeyStatus } from "../main";
+import { getButtons } from "../discord/discordUI";
 
 
 // 現在鍵を借りているユーザーの情報（借りていない場合はnull）
@@ -15,34 +16,28 @@ export let borrowerInfo: BorrowerInfo | null = null;
  * 
  * @param client - Discordクライアント
  * @param userId - メッセージを送信するユーザーのDiscord ID
- * @param username - ユーザー名
  * @param channelId - メッセージを送信するチャンネルのID
- * @param keyStatus - 現在の鍵の状態
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const sendReminderMessage = async (
   client: Client,
   userId: string,
-  channelId: string,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  channelId: string
 ) => {
   // 常に最新の鍵の状態を取得
   const keyStatus = getKeyStatus();
-  
+
   // 鍵が既に返却されている場合は送信しない
   if (keyStatus === "RETURN") {
     console.log("鍵が既に返却されているため、リマインダーを送信しません。");
     return;
   }
-  
+
   // リマインダー機能がOFFの場合は送信しない
   if (!config.isReminderEnabled) {
     console.log("リマインダー機能がOFFのため、送信をスキップしました。");
     return;
   }
-  
+
   // 借りた人の情報がない場合は送信できない
   if (!borrowerInfo) {
     console.log("借りた人の情報がないため、リマインダーを送信できません。");
@@ -52,11 +47,13 @@ export const sendReminderMessage = async (
   // リマインダー送信回数をカウントアップ
   borrowerInfo.reminderCount++;
   const count = borrowerInfo.reminderCount;
-  
+
   try {
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {
+      // メッセージ送信可能なチャンネルにキャスト
+      const textChannel = channel as TextChannel;
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
         .setColor(Colors.Gold) // 黄色で警告を表現
@@ -67,10 +64,10 @@ export const sendReminderMessage = async (
         .setTimestamp();
 
       // 現在の鍵の状態に応じたボタンセットを取得
-      const currentButtonSet = mapButtons.get(keyStatus) || new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton);
+      const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
       // メッセージを送信
-      await channel.send({
+      await textChannel.send({
         content: `<@${userId}>`, // ユーザーにメンション
         embeds: [embed],
         components: [currentButtonSet], // ボタンも一緒に送信
@@ -84,9 +81,7 @@ export const sendReminderMessage = async (
           sendReminderMessage(
             client,
             borrowerInfo!.userId,
-            borrowerInfo!.channelId,
-            mapButtons,
-            borrowButton
+            borrowerInfo!.channelId
           );
         }, minutesToMs(config.reminderTimeMinutes)); // 分をミリ秒に変換
 
@@ -115,13 +110,9 @@ export const clearReminderTimer = () => {
  * リマインダー間隔が変更された時などに呼び出される
  * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const rescheduleReminderTimer = (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 借りている人がいない、またはリマインダーがOFFの場合は何もしない
   if (!borrowerInfo || !config.isReminderEnabled) {
@@ -136,7 +127,7 @@ export const rescheduleReminderTimer = (
   // 借りてからの経過時間を計算（分単位）
   const now = Date.now();
   const elapsedMinutes = msToMinutes(now - borrowerInfo.borrowedAt);
-  
+
   // 次のリマインダーまでの時間を計算
   const nextReminderAt = (borrowerInfo.reminderCount + 1) * config.reminderTimeMinutes;
   const remainingMinutes = nextReminderAt - elapsedMinutes;
@@ -149,9 +140,7 @@ export const rescheduleReminderTimer = (
       sendReminderMessage(
         client,
         borrowerInfo!.userId,
-        borrowerInfo!.channelId,
-        mapButtons,
-        borrowButton
+        borrowerInfo!.channelId
       );
     }, minutesToMs(remainingMinutes));
 
@@ -163,9 +152,7 @@ export const rescheduleReminderTimer = (
     sendReminderMessage(
       client,
       borrowerInfo.userId,
-      borrowerInfo.channelId,
-      mapButtons,
-      borrowButton
+      borrowerInfo.channelId
     );
   }
 };

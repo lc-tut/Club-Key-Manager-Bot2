@@ -5,9 +5,9 @@
 
 import { Events, Interaction, REST, Routes, TextChannel } from "discord.js";
 import { client } from "./discord/client";
-import { token, idLogChannel } from "./config";
+import { token, idLogChannel, config } from "./config";
 import { commands } from "./discord/commands";
-import { mapButtons, borrowButton } from "./discord/discordUI";
+import { getButtons } from "./discord/discordUI";
 import { schedule20OClockCheck } from "./services/scheduledCheck";
 import {
   handleBorrowCommand,
@@ -65,7 +65,7 @@ client.once("ready", async (bot) => {
 
   try {
     console.log("スラッシュコマンドを登録しています...");
-    
+
     // スラッシュコマンドをDiscord APIに登録
     await rest.put(
       Routes.applicationCommands(client.user.id),
@@ -77,12 +77,12 @@ client.once("ready", async (bot) => {
   }
 
   // 定時チェック（デフォルトは20時）をスケジュール
-  schedule20OClockCheck(client, mapButtons, borrowButton);
+  schedule20OClockCheck(client);
 
   // 鍵管理用チャンネルに初期メッセージを送信
   if (idLogChannel) {
     // 返却済み状態のボタンセット（「借りる」ボタン）を取得
-    const initialButtonSet = mapButtons.get("RETURN");
+    const initialButtonSet = getButtons("RETURN", config.isReminderEnabled);
     if (initialButtonSet) {
       // チャンネルにメッセージを送信
       (bot.channels?.cache.get(idLogChannel) as TextChannel).send({
