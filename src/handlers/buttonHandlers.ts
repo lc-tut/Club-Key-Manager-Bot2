@@ -6,7 +6,7 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
-import { getUserInfo, saveBorrowerInfo } from "./handlerUtils";
+import { getUserInfo, saveBorrowerInfo, getReminderSettingMessage } from "./handlerUtils";
 import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
 import {
   sendReminderMessage,
@@ -100,19 +100,11 @@ export const handleButtonInteraction = async (
     if (btnCustomId === "BORROW_KEY") {
       embed.setTitle("借りました");
       // リマインダー設定情報を追加
-      if (config.isReminderEnabled) {
-        embed.addFields({
-          name: "⏰ リマインダー設定",
-          value: `リマインダーが有効です\n・間隔: ${config.reminderTimeMinutes}分ごと\n・定時チェック: ${config.checkHour}時${config.checkMinute}分`,
-          inline: false
-        });
-      } else {
-        embed.addFields({
-          name: "⏰ リマインダー設定",
-          value: `リマインダーは無効です\n・定時チェック: ${config.isScheduledCheckEnabled ? `${config.checkHour}時${config.checkMinute}分` : "無効"}`,
-          inline: false
-        });
-      }
+      embed.addFields({
+        name: "⏰ リマインダー設定",
+        value: getReminderSettingMessage(),
+        inline: false
+      });
     } else if (btnCustomId === "CLOSE") {
       embed.setTitle("閉めました");
     }
