@@ -6,14 +6,13 @@ import { Client } from "discord.js";
 import { getKeyStatus } from "../main";
 import { getButtons } from "../discord/discordUI";
 
-
 // 現在鍵を借りているユーザーの情報（借りていない場合はnull）
 export let borrowerInfo: BorrowerInfo | null = null;
 
 /**
  * リマインダーメッセージを送信する関数
  * 指定されたユーザーに鍵の返却を促すメッセージを送信する
- * 
+ *
  * @param client - Discordクライアント
  * @param userId - メッセージを送信するユーザーのDiscord ID
  * @param channelId - メッセージを送信するチャンネルのID
@@ -86,7 +85,9 @@ export const sendReminderMessage = async (
         }, minutesToMs(config.reminderTimeMinutes)); // 分をミリ秒に変換
 
         borrowerInfo.timerId = timerId;
-        console.log(`次のリマインダーを${config.reminderTimeMinutes}分後にスケジュールしました。`);
+        console.log(
+          `次のリマインダーを${config.reminderTimeMinutes}分後にスケジュールしました。`
+        );
       }
     }
   } catch (error) {
@@ -108,12 +109,10 @@ export const clearReminderTimer = () => {
 /**
  * リマインダータイマーを再設定する関数
  * リマインダー間隔が変更された時などに呼び出される
- * 
+ *
  * @param client - Discordクライアント
  */
-export const rescheduleReminderTimer = (
-  client: Client
-) => {
+export const rescheduleReminderTimer = (client: Client) => {
   // 借りている人がいない、またはリマインダーがOFFの場合は何もしない
   if (!borrowerInfo || !config.isReminderEnabled) {
     return;
@@ -129,10 +128,13 @@ export const rescheduleReminderTimer = (
   const elapsedMinutes = msToMinutes(now - borrowerInfo.borrowedAt);
 
   // 次のリマインダーまでの時間を計算
-  const nextReminderAt = (borrowerInfo.reminderCount + 1) * config.reminderTimeMinutes;
+  const nextReminderAt =
+    (borrowerInfo.reminderCount + 1) * config.reminderTimeMinutes;
   const remainingMinutes = nextReminderAt - elapsedMinutes;
 
-  console.log(`経過時間: ${Math.floor(elapsedMinutes)}分, 次のリマインダーまで: ${Math.floor(remainingMinutes)}分 (${borrowerInfo.reminderCount + 1}回目)`);
+  console.log(
+    `経過時間: ${Math.floor(elapsedMinutes)}分, 次のリマインダーまで: ${Math.floor(remainingMinutes)}分 (${borrowerInfo.reminderCount + 1}回目)`
+  );
 
   // まだ次のリマインダー時間に達していない場合は再スケジュール
   if (remainingMinutes > 0) {
@@ -145,15 +147,13 @@ export const rescheduleReminderTimer = (
     }, minutesToMs(remainingMinutes));
 
     borrowerInfo.timerId = timerId;
-    console.log(`リマインダーを再スケジュールしました。${Math.floor(remainingMinutes)}分後に通知します。`);
+    console.log(
+      `リマインダーを再スケジュールしました。${Math.floor(remainingMinutes)}分後に通知します。`
+    );
   } else {
     // 既に時間が経過している場合は即座に送信
     console.log(`既にリマインダー時間を経過しているため、即座に通知します。`);
-    sendReminderMessage(
-      client,
-      borrowerInfo.userId,
-      borrowerInfo.channelId
-    );
+    sendReminderMessage(client, borrowerInfo.userId, borrowerInfo.channelId);
   }
 };
 

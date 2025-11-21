@@ -38,7 +38,9 @@ export const returnButton = new ButtonBuilder()
  * @param isReminderEnabled - リマインダーが有効かどうか
  * @returns 適切な色とラベルのボタン
  */
-export const createReminderToggleButton = (isReminderEnabled: boolean): ButtonBuilder => {
+export const createReminderToggleButton = (
+  isReminderEnabled: boolean
+): ButtonBuilder => {
   // ラベルはリマインダーに統一
   const label = "リマインダー";
   // 現在の状態を色で表示: ON時は Success（緑）、OFF時は Secondary（灰色）
@@ -69,8 +71,8 @@ export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
     "BORROW",
     !modeConsole
       ? new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(openButton)
-        .addComponents(returnButton)
+          .addComponents(openButton)
+          .addComponents(returnButton)
       : new ActionRowBuilder<ButtonBuilder>().addComponents(returnButton),
   ],
   // 開けた状態: 「閉める」ボタンのみ表示
@@ -100,22 +102,33 @@ export const mapOpers: Map<Key, OperKey> = new Map([
  * @param isReminderEnabled - リマインダーが有効かどうか
  * @returns ボタンセット
  */
-export const getButtons = (keyStatus: Key, isReminderEnabled: boolean): ActionRowBuilder<ButtonBuilder> => {
+export const getButtons = (
+  keyStatus: Key,
+  isReminderEnabled: boolean
+): ActionRowBuilder<ButtonBuilder> => {
   const reminderButton = createReminderToggleButton(isReminderEnabled);
 
   if (keyStatus === "BORROW") {
     // 借りた状態: 操作卓モードでない場合は「開ける」「返す」「リマインダー」、操作卓モードの場合は「返す」「リマインダー」
     return !modeConsole
-      ? new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(openButton, returnButton, reminderButton)
-      : new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(returnButton, reminderButton);
+      ? new ActionRowBuilder<ButtonBuilder>().addComponents(
+          openButton,
+          returnButton,
+          reminderButton
+        )
+      : new ActionRowBuilder<ButtonBuilder>().addComponents(
+          returnButton,
+          reminderButton
+        );
   }
 
   if (keyStatus === "CLOSE") {
     // 閉めた状態: 「返す」「開ける」「リマインダー」を表示
-    return new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(returnButton, openButton, reminderButton);
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+      returnButton,
+      openButton,
+      reminderButton
+    );
   }
 
   const buttons = mapButtons.get(keyStatus);

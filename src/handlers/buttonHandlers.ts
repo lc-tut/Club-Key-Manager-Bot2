@@ -6,8 +6,17 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
-import { getUserInfo, addReminderSettingsToEmbed, saveBorrowerInfo } from "./handlerUtils";
-import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
+import {
+  getUserInfo,
+  addReminderSettingsToEmbed,
+  saveBorrowerInfo,
+} from "./handlerUtils";
+import {
+  mapLabel,
+  mapOpers,
+  mapPresence,
+  getButtons,
+} from "../discord/discordUI";
 import {
   sendReminderMessage,
   clearReminderTimer,
@@ -53,7 +62,9 @@ export const handleButtonInteraction = async (
       .setColor(Colors.Blue)
       .setAuthor({ name: username, iconURL: userIconUrl ?? undefined })
       .setTitle("リマインダー設定変更")
-      .setDescription(`リマインダー機能を${newState ? "ON" : "OFF"}にしました。`)
+      .setDescription(
+        `リマインダー機能を${newState ? "ON" : "OFF"}にしました。`
+      )
       .setTimestamp();
 
     // インタラクションに返信
@@ -142,14 +153,15 @@ export const handleButtonInteraction = async (
     // リマインダー機能がONの場合のみタイマーを設定
     if (config.isReminderEnabled) {
       const timerId = setTimeout(() => {
-        sendReminderMessage(
-          client,
-          interaction.user.id,
-          interaction.channelId
-        );
+        sendReminderMessage(client, interaction.user.id, interaction.channelId);
       }, minutesToMs(config.reminderTimeMinutes));
 
-      saveBorrowerInfo(interaction.user.id, username, interaction.channelId, timerId);
+      saveBorrowerInfo(
+        interaction.user.id,
+        username,
+        interaction.channelId,
+        timerId
+      );
 
       console.log(
         `${username}が鍵を借りました。${config.reminderTimeMinutes}分後にリマインダーを送信します。`
@@ -157,9 +169,7 @@ export const handleButtonInteraction = async (
     } else {
       // リマインダーOFFの場合でも借りたユーザー情報は保存
       saveBorrowerInfo(interaction.user.id, username, interaction.channelId);
-      console.log(
-        `${username}が鍵を借りました。リマインダー機能はOFFです。`
-      );
+      console.log(`${username}が鍵を借りました。リマインダー機能はOFFです。`);
     }
   }
 
