@@ -1,15 +1,10 @@
-import {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  Colors,
-} from "discord.js";
-import { Key } from "../types";
+import { EmbedBuilder, Colors, TextChannel } from "discord.js";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
 import { Client } from "discord.js";
 import { getKeyStatus } from "../main";
 import { msToMinutes } from "../utils";
+import { getButtons } from "../discord/discordUI";
 // 定時チェックのタイマーID
 let scheduledCheckTimerId: ReturnType<typeof setTimeout> | null = null;
 
@@ -17,15 +12,11 @@ let scheduledCheckTimerId: ReturnType<typeof setTimeout> | null = null;
  * 定時チェック関数
  * 設定された時刻（デフォルト20時）に鍵が返却されていない場合、
  * 借りているユーザーに通知を送信する
- *
+ * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const check20OClock = async (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 常に最新の鍵の状態を取得
   const keyStatus = getKeyStatus();
@@ -40,6 +31,8 @@ export const check20OClock = async (
     try {
       const channel = await client.channels.fetch(borrowerInfo.channelId);
       if (channel && channel.isTextBased()) {
+        // メッセージ送受信可能なチャンネルにキャスト
+        const textChannel = channel as TextChannel;
         // 埋め込みメッセージを作成
         const embed = new EmbedBuilder()
           .setColor(Colors.Gold) // 黄色で警告を表現
@@ -50,20 +43,16 @@ export const check20OClock = async (
           .setTimestamp();
 
         // 現在の鍵の状態に応じたボタンセットを取得
-        const currentButtonSet =
-          mapButtons.get(keyStatus) ||
-          new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton);
+        const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
         // メッセージを送信
-        await channel.send({
+        await textChannel.send({
           content: `<@${borrowerInfo.userId}>`, // ユーザーにメンション
           embeds: [embed],
           components: [currentButtonSet], // ボタンも一緒に送信
         });
 
-        console.log(
-          `定時チェック: ${borrowerInfo.username}に返却リマインダーを送信しました。`
-        );
+        console.log(`定時チェック: ${borrowerInfo.username}に返却リマインダーを送信しました。`);
       }
     } catch (error) {
       console.error("定時チェックメッセージの送信に失敗しました:", error);
@@ -75,7 +64,7 @@ export const check20OClock = async (
 
 /**
  * 次の定時チェックまでの時間をミリ秒で計算する関数
- *
+ * 
  * @returns 次の定時チェックまでの時間（ミリ秒）
  */
 export const getMillisecondsUntil20OClock = (): number => {
@@ -83,25 +72,19 @@ export const getMillisecondsUntil20OClock = (): number => {
   const target = new Date();
   target.setHours(config.checkHour, config.checkMinute, 0, 0); // 設定された時刻に設定
 
-  console.log(`現在時刻: ${now.toLocaleString("ja-JP")}`);
-  console.log(`ターゲット時刻: ${target.toLocaleString("ja-JP")}`);
-  console.log(
-    `now.getTime(): ${now.getTime()}, target.getTime(): ${target.getTime()}`
-  );
+  console.log(`現在時刻: ${now.toLocaleString('ja-JP')}`);
+  console.log(`ターゲット時刻: ${target.toLocaleString('ja-JP')}`);
+  console.log(`now.getTime(): ${now.getTime()}, target.getTime(): ${target.getTime()}`);
 
   // もし現在時刻が既に設定時刻を過ぎていたら、翌日の設定時刻に設定
   if (now.getTime() >= target.getTime()) {
-    console.log(
-      `${config.checkHour}時${config.checkMinute}分を過ぎているため、翌日の${config.checkHour}時${config.checkMinute}分に設定します`
-    );
+    console.log(`${config.checkHour}時${config.checkMinute}分を過ぎているため、翌日の${config.checkHour}時${config.checkMinute}分に設定します`);
     target.setDate(target.getDate() + 1);
-    console.log(`新しいターゲット時刻: ${target.toLocaleString("ja-JP")}`);
+    console.log(`新しいターゲット時刻: ${target.toLocaleString('ja-JP')}`);
   }
 
   const diff = target.getTime() - now.getTime();
-  console.log(
-    `時間差（ミリ秒）: ${diff}, 分: ${Math.round(msToMinutes(diff))}`
-  );
+  console.log(`時間差（ミリ秒）: ${diff}, 分: ${Math.round(msToMinutes(diff))}`);
 
   return diff;
 };
@@ -109,15 +92,11 @@ export const getMillisecondsUntil20OClock = (): number => {
 /**
  * 定時チェックをスケジュールする関数
  * 設定された時刻に定期的にチェックを実行するようにタイマーを設定する
- *
+ * 
  * @param client - Discordクライアント
- * @param mapButtons - 鍵の状態とボタンのマップ
- * @param borrowButton - 借りるボタン
  */
 export const schedule20OClockCheck = (
-  client: Client,
-  mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>>,
-  borrowButton: ButtonBuilder
+  client: Client
 ) => {
   // 既存のタイマーをクリア
   if (scheduledCheckTimerId) {
@@ -129,15 +108,11 @@ export const schedule20OClockCheck = (
   const scheduleNext = () => {
     const msUntil20 = getMillisecondsUntil20OClock();
 
-    console.log(
-      `次の定時チェックまで: ${Math.round(msUntil20 / 1000 / 60)}分 (${
-        config.checkHour
-      }時${config.checkMinute}分)`
-    );
+    console.log(`次の定時チェックまで: ${Math.round(msUntil20 / 1000 / 60)}分 (${config.checkHour}時${config.checkMinute}分)`);
 
     // タイマーを設定
     scheduledCheckTimerId = setTimeout(() => {
-      check20OClock(client, mapButtons, borrowButton); // チェックを実行
+      check20OClock(client); // チェックを実行
       scheduleNext(); // 次の日のチェックをスケジュール
     }, msUntil20);
   };

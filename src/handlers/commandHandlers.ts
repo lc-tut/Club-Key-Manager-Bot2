@@ -1,36 +1,39 @@
-/**
+﻿/**
  * スラッシュコマンドのハンドラー
  * 各コマンドの処理ロジックを管理
  */
 
 import { ChatInputCommandInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
-import { getUserInfo } from "./handlerUtils";
+import { getUserInfo, addReminderSettingsToEmbed, saveBorrowerInfo } from "./handlerUtils";
 import {
   config,
   setReminderTimeMinutes,
   setCheckTime,
   toggleReminderEnabled,
-  toggleScheduledCheckEnabled,
+  toggleScheduledCheckEnabled
 } from "../config";
 import {
   sendReminderMessage,
   clearReminderTimer,
   rescheduleReminderTimer,
   borrowerInfo,
-  setBorrowerInfo,
 } from "../services/reminderService";
 import { schedule20OClockCheck } from "../services/scheduledCheck";
 import { client } from "../discord/client";
-import { mapButtons, borrowButton, mapPresence } from "../discord/discordUI";
+import { mapPresence, getButtons } from "../discord/discordUI";
 import { minutesToMs } from "../utils";
 
 /**
  * 現在の鍵の状態に応じたボタンを取得するヘルパー関数
  */
 export const getKeyButtonsForCommand = (keyStatus: Key) => {
-  const buttons = mapButtons.get(keyStatus);
-  return buttons || mapButtons.get("RETURN")!;
+  try {
+    return getButtons(keyStatus, config.isReminderEnabled);
+  } catch (error) {
+    console.error(`Failed to get buttons for key status ${keyStatus}:`, error);
+    return getButtons("RETURN", config.isReminderEnabled);
+  }
 };
 
 /**
@@ -59,26 +62,10 @@ export const handleBorrowCommand = async (
       .setTimestamp();
 
     // リマインダー設定の情報を追加
-    if (config.isReminderEnabled) {
-      embed.addFields({
-        name: "⏰ リマインダー設定",
-        value: `リマインダーが有効です\n・間隔: ${config.reminderTimeMinutes}分ごと\n・定時チェック: ${config.checkHour}時${config.checkMinute}分`,
-        inline: false,
-      });
-    } else {
-      embed.addFields({
-        name: "⏰ リマインダー設定",
-        value: `リマインダーは無効です\n・定時チェック: ${
-          config.isScheduledCheckEnabled
-            ? `${config.checkHour}時${config.checkMinute}分`
-            : "無効"
-        }`,
-        inline: false,
-      });
-    }
+    addReminderSettingsToEmbed(embed);
 
     // ボタンセットを取得
-    const buttonSet = mapButtons.get(newStatus);
+    const buttonSet = getButtons(newStatus, config.isReminderEnabled);
 
     // 返信を送信
     await interaction.reply({
@@ -88,43 +75,24 @@ export const handleBorrowCommand = async (
 
     // リマインダーを設定
     if (config.isReminderEnabled) {
-      const now = Date.now();
       const delayMs = (delayMinutes ?? config.reminderTimeMinutes) * 60 * 1000;
 
       const timerId = setTimeout(() => {
         sendReminderMessage(
           client,
           interaction.user.id,
-          interaction.channelId,
-          mapButtons,
-          borrowButton
+          interaction.channelId
         );
       }, delayMs);
 
-      setBorrowerInfo({
-        userId: interaction.user.id,
-        username: username,
-        channelId: interaction.channelId,
-        timerId: timerId,
-        borrowedAt: now,
-        reminderCount: 0,
-      });
+      saveBorrowerInfo(interaction.user.id, username, interaction.channelId, timerId);
 
       console.log(
-        `${username}が鍵を借りました。${
-          delayMinutes ?? config.reminderTimeMinutes
-        }分後にリマインダーを送信します。`
+        `${username}が鍵を借りました。${delayMinutes ?? config.reminderTimeMinutes}分後にリマインダーを送信します。`
       );
     } else {
       // リマインダーOFFの場合でも借りたユーザー情報は保存
-      setBorrowerInfo({
-        userId: interaction.user.id,
-        username: username,
-        channelId: interaction.channelId,
-        timerId: null,
-        borrowedAt: Date.now(),
-        reminderCount: 0,
-      });
+      saveBorrowerInfo(interaction.user.id, username, interaction.channelId);
       console.log(`${username}が鍵を借りました。リマインダー機能はOFFです。`);
     }
 
@@ -135,10 +103,7 @@ export const handleBorrowCommand = async (
     }
 
     return newStatus;
-  } else if (
-    borrowerInfo &&
-    (keyStatus === "BORROW" || keyStatus === "OPEN" || keyStatus === "CLOSE")
-  ) {
+  } else if (borrowerInfo && (keyStatus === "BORROW" || keyStatus === "OPEN" || keyStatus === "CLOSE")) {
     // 既に借りている状態でコマンド実行 → リマインダー開始時間を更新
     const delayMs = (delayMinutes ?? config.reminderTimeMinutes) * 60 * 1000;
 
@@ -152,30 +117,19 @@ export const handleBorrowCommand = async (
       sendReminderMessage(
         client,
         borrowerInfo!.userId,
-        borrowerInfo!.channelId,
-        mapButtons,
-        borrowButton
+        borrowerInfo!.channelId
       );
     }, delayMs);
 
-    setBorrowerInfo({
-      ...borrowerInfo,
-      timerId: timerId,
-      reminderCount: 0,
-      borrowedAt: Date.now(),
-    });
+    saveBorrowerInfo(borrowerInfo.userId, borrowerInfo.username, borrowerInfo.channelId, timerId);
 
     await interaction.reply({
-      content: `リマインダー開始時間を${
-        delayMinutes ?? config.reminderTimeMinutes
-      }分後に設定しました。`,
+      content: `リマインダー開始時間を${delayMinutes ?? config.reminderTimeMinutes}分後に設定しました。`,
       components: [getKeyButtonsForCommand(keyStatus)],
     });
 
     console.log(
-      `リマインダー開始時間を${
-        delayMinutes ?? config.reminderTimeMinutes
-      }分後に更新しました。`
+      `リマインダー開始時間を${delayMinutes ?? config.reminderTimeMinutes}分後に更新しました。`
     );
 
     return keyStatus;
@@ -235,7 +189,7 @@ export const handleReminderTimeCommand = async (
 
     // 鍵が借りられている場合、リマインダーを再スケジュール
     if (borrowerInfo && keyStatus !== "RETURN") {
-      rescheduleReminderTimer(client, mapButtons, borrowButton);
+      rescheduleReminderTimer(client);
       await interaction.reply({
         content: `リマインダー送信時間を${minutes}分に設定しました。`,
         components: [getKeyButtonsForCommand(keyStatus)],
@@ -265,15 +219,13 @@ export const handleCheckTimeCommand = async (
     setCheckTime(hour, minute);
 
     // スケジュールを即座に再設定
-    schedule20OClockCheck(client, mapButtons, borrowButton);
+    schedule20OClockCheck(client);
 
     await interaction.reply({
       content: `定時チェック時刻を${hour}時${minute}分に設定しました。`,
       components: [getKeyButtonsForCommand(keyStatus)],
     });
-    console.log(
-      `定時チェック時刻: ${hour}時${minute}分に変更し、スケジュールを再設定しました。`
-    );
+    console.log(`定時チェック時刻: ${hour}時${minute}分に変更し、スケジュールを再設定しました。`);
   }
 };
 
@@ -289,26 +241,10 @@ export const handleStatusCommand = async (
     .setColor(Colors.Blue)
     .setTitle("⚙️ アラーム設定状況")
     .addFields(
-      {
-        name: "リマインダー機能",
-        value: config.isReminderEnabled ? "✅ ON" : "❌ OFF",
-        inline: true,
-      },
-      {
-        name: "定時チェック機能",
-        value: config.isScheduledCheckEnabled ? "✅ ON" : "❌ OFF",
-        inline: true,
-      },
-      {
-        name: "リマインダー時間",
-        value: `${config.reminderTimeMinutes}分`,
-        inline: true,
-      },
-      {
-        name: "定時チェック時刻",
-        value: `${config.checkHour}時${config.checkMinute}分`,
-        inline: true,
-      }
+      { name: "リマインダー機能", value: config.isReminderEnabled ? "✅ ON" : "❌ OFF", inline: true },
+      { name: "定時チェック機能", value: config.isScheduledCheckEnabled ? "✅ ON" : "❌ OFF", inline: true },
+      { name: "リマインダー時間", value: `${config.reminderTimeMinutes}分`, inline: true },
+      { name: "定時チェック時刻", value: `${config.checkHour}時${config.checkMinute}分`, inline: true }
     )
     .setTimestamp();
 
@@ -356,39 +292,22 @@ export const handleOwnerCommand = async (
   // 新しい持ち主の情報を設定（リマインダーカウントをリセット）
   if (config.isReminderEnabled) {
     // 新しい持ち主用に新しいタイマーを設定（カウントをリセット）
-    const now = Date.now();
     const timerId = setTimeout(() => {
       sendReminderMessage(
         client,
         newOwner.id,
-        interaction.channelId,
-        mapButtons,
-        borrowButton
+        interaction.channelId
       );
     }, minutesToMs(config.reminderTimeMinutes));
 
-    setBorrowerInfo({
-      userId: newOwner.id,
-      username: newOwnerName,
-      channelId: interaction.channelId,
-      timerId: timerId,
-      borrowedAt: now,
-      reminderCount: 0,
-    });
+    saveBorrowerInfo(newOwner.id, newOwnerName, interaction.channelId, timerId);
 
     console.log(
       `鍵の持ち主を ${oldOwnerName} から ${newOwnerName} に変更しました。リマインダーカウントをリセットし、${config.reminderTimeMinutes}分後に通知します。`
     );
   } else {
     // リマインダーOFFの場合
-    setBorrowerInfo({
-      userId: newOwner.id,
-      username: newOwnerName,
-      channelId: interaction.channelId,
-      timerId: null,
-      borrowedAt: Date.now(),
-      reminderCount: 0,
-    });
+    saveBorrowerInfo(newOwner.id, newOwnerName, interaction.channelId);
 
     console.log(
       `鍵の持ち主を ${oldOwnerName} から ${newOwnerName} に変更しました。リマインダー機能はOFFです。`
@@ -400,11 +319,7 @@ export const handleOwnerCommand = async (
     .setColor(Colors.Green)
     .setTitle("🔄 鍵の持ち主変更")
     .setDescription(
-      `鍵の持ち主を変更しました\n<@${oldOwnerId}> → <@${newOwner.id}>\n${
-        config.isReminderEnabled
-          ? `⏰ リマインダー: ${config.reminderTimeMinutes}分後に通知`
-          : ""
-      }`
+      `鍵の持ち主を変更しました\n<@${oldOwnerId}> → <@${newOwner.id}>\n${config.isReminderEnabled ? `⏰ リマインダー: ${config.reminderTimeMinutes}分後に通知` : ""}`
     )
     .setTimestamp();
 
