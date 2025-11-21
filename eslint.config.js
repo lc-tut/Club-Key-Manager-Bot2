@@ -24,8 +24,9 @@ module.exports = [
             '@typescript-eslint': tseslint,
         },
         rules: {
-            ...tseslint.configs.recommended.rules,
+            ...tseslint.configs['flat/recommended-type-checked'].rules,
             '@typescript-eslint/no-explicit-any': 'warn',
+            'no-unused-vars': 'off', // TypeScript ESLintのno-unused-varsを使うため無効化
             '@typescript-eslint/no-unused-vars': [
                 'warn',
                 {
