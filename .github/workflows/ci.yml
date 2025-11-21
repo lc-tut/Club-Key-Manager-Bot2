@@ -38,3 +38,18 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Docker build test
+        run: docker compose build
+
+      - name: Create test settings.json
+        run: cp src/settings.json.sample src/settings.json
+
+      - name: Docker run test (expect TokenInvalid error)
+        run: |
+          # コンテナを起動し、TokenInvalidエラーが出ることを確認
+          # エラーコード1で終了するが、それは期待される動作なのでOR trueで成功扱いにする
+          timeout 15s docker compose up || EXIT_CODE=$?
+          docker compose down
+          # TokenInvalidエラーログが出力されているか確認
+          docker compose logs 2>&1 | grep -q "TokenInvalid" && echo "✓ Docker container successfully started and reached Discord login" || (echo "✗ Container did not reach expected state" && exit 1)
