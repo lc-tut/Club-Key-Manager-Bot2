@@ -2,6 +2,7 @@ const eslint = require('@eslint/js');
 const tseslint = require('@typescript-eslint/eslint-plugin');
 const tsparser = require('@typescript-eslint/parser');
 const prettier = require('eslint-config-prettier');
+const globals = require('globals');
 
 module.exports = [
     eslint.configs.recommended,
@@ -15,15 +16,7 @@ module.exports = [
                 project: './tsconfig.json',
             },
             globals: {
-                console: 'readonly',
-                process: 'readonly',
-                __dirname: 'readonly',
-                __filename: 'readonly',
-                Buffer: 'readonly',
-                setTimeout: 'readonly',
-                clearTimeout: 'readonly',
-                setInterval: 'readonly',
-                clearInterval: 'readonly',
+                ...globals.node,
                 NodeJS: 'readonly',
             },
         },
