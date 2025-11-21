@@ -8,8 +8,9 @@ export const commands = [
   new SlashCommandBuilder()
     .setName("borrow")
     .setDescription("鍵を借りる（オプション：リマインダー開始時間を分で指定）")
-    .addIntegerOption(option =>
-      option.setName("delay-minutes")
+    .addIntegerOption((option) =>
+      option
+        .setName("delay-minutes")
         .setDescription("指定分後にリマインダー開始（指定なしはデフォルト）")
         .setRequired(false)
         .setMinValue(0)
@@ -26,8 +27,9 @@ export const commands = [
   new SlashCommandBuilder()
     .setName("reminder-time")
     .setDescription("リマインダー送信時間を設定（分）")
-    .addIntegerOption(option =>
-      option.setName("minutes")
+    .addIntegerOption((option) =>
+      option
+        .setName("minutes")
         .setDescription("リマインダー送信までの時間（分）")
         .setRequired(true)
         .setMinValue(1)
@@ -37,15 +39,17 @@ export const commands = [
   new SlashCommandBuilder()
     .setName("check-time")
     .setDescription("定時チェックの時刻を設定")
-    .addIntegerOption(option =>
-      option.setName("hour")
+    .addIntegerOption((option) =>
+      option
+        .setName("hour")
         .setDescription("時（0-23）")
         .setRequired(true)
         .setMinValue(0)
         .setMaxValue(23)
     )
-    .addIntegerOption(option =>
-      option.setName("minute")
+    .addIntegerOption((option) =>
+      option
+        .setName("minute")
         .setDescription("分（0-59）")
         .setRequired(true)
         .setMinValue(0)
@@ -59,9 +63,7 @@ export const commands = [
   new SlashCommandBuilder()
     .setName("owner")
     .setDescription("鍵の持ち主を変更")
-    .addUserOption(option =>
-      option.setName("user")
-        .setDescription("新しい持ち主")
-        .setRequired(true)
-    )
-].map(command => command.toJSON());
+    .addUserOption((option) =>
+      option.setName("user").setDescription("新しい持ち主").setRequired(true)
+    ),
+].map((command) => command.toJSON());

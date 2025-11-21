@@ -22,11 +22,13 @@ export const minutesToMs = (minutes: number): number => {
  * 文字列またはbooleanをboolean型に変換する関数
  * "true"または"1"の場合にtrueを返し、それ以外はfalseを返す
  * 既にboolean型の場合はそのまま返す
- * 
+ *
  * @param value - 変換する文字列またはboolean
  * @returns boolean値
  */
-export const string2boolean = (value: string | boolean | null | undefined): boolean => {
+export const string2boolean = (
+  value: string | boolean | null | undefined
+): boolean => {
   if (typeof value === "boolean") {
     return value;
   }
@@ -39,7 +41,7 @@ export const string2boolean = (value: string | boolean | null | undefined): bool
 /**
  * 型ガード関数：文字列がKey型かどうかを確認
  * TypeScriptの型安全性を保つために使用
- * 
+ *
  * @param value - チェックする文字列
  * @returns valueがKey型の値である場合true
  */
