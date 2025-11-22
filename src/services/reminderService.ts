@@ -1,4 +1,4 @@
-import { EmbedBuilder, Channel, Colors, TextChannel } from "discord.js";
+import { EmbedBuilder, Channel, Colors } from "discord.js";
 import { BorrowerInfo } from "../types";
 import { minutesToMs, msToMinutes } from "../utils";
 import { config } from "../config";
@@ -13,7 +13,7 @@ export let borrowerInfo: BorrowerInfo | null = null;
 /**
  * リマインダーメッセージを送信する関数
  * 指定されたユーザーに鍵の返却を促すメッセージを送信する
- * 
+ *
  * @param client - Discordクライアント
  * @param userId - メッセージを送信するユーザーのDiscord ID
  * @param channelId - メッセージを送信するチャンネルのID
@@ -51,9 +51,7 @@ export const sendReminderMessage = async (
   try {
     // チャンネルを取得
     const channel: Channel | null = await client.channels.fetch(channelId);
-    if (channel && channel.isTextBased()) {
-      // メッセージ送信可能なチャンネルにキャスト
-      const textChannel = channel as TextChannel;
+    if (channel && channel.isSendable()) {
       // 埋め込みメッセージを作成
       const embed = new EmbedBuilder()
         .setColor(Colors.Gold) // 黄色で警告を表現
@@ -67,7 +65,7 @@ export const sendReminderMessage = async (
       const currentButtonSet = getButtons(keyStatus, config.isReminderEnabled);
 
       // メッセージを送信
-      await textChannel.send({
+      await channel.send({
         content: `<@${userId}>`, // ユーザーにメンション
         embeds: [embed],
         components: [currentButtonSet], // ボタンも一緒に送信
