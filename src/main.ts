@@ -42,7 +42,7 @@ export const setKeyStatus = (newStatus: Key): void => {
  * ボットが起動した時のイベントハンドラー
  * 初期設定とスラッシュコマンドの登録を行う
  */
-client.once("ready", async (bot) => {
+client.once("ready", async bot => {
   console.log("Ready!");
 
   // client.userが存在することを確認

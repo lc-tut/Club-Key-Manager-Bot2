@@ -46,11 +46,13 @@ export const getReminderSettingMessage = (): string => {
  * @param embed - 埋め込みメッセージ
  * @returns 更新された埋め込みメッセージ
  */
-export const addReminderSettingsToEmbed = (embed: EmbedBuilder): EmbedBuilder => {
+export const addReminderSettingsToEmbed = (
+  embed: EmbedBuilder
+): EmbedBuilder => {
   embed.addFields({
     name: "⏰ リマインダー設定",
     value: getReminderSettingMessage(),
-    inline: false
+    inline: false,
   });
   return embed;
 };

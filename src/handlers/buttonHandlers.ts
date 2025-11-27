@@ -6,8 +6,17 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
-import { getUserInfo, saveBorrowerInfo, getReminderSettingMessage } from "./handlerUtils";
-import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
+import {
+  getUserInfo,
+  saveBorrowerInfo,
+  getReminderSettingMessage,
+} from "./handlerUtils";
+import {
+  mapLabel,
+  mapOpers,
+  mapPresence,
+  getButtons,
+} from "../discord/discordUI";
 import {
   sendReminderMessage,
   clearReminderTimer,
@@ -105,7 +114,7 @@ export const handleButtonInteraction = async (
       embed.addFields({
         name: "⏰ リマインダー設定",
         value: getReminderSettingMessage(),
-        inline: false
+        inline: false,
       });
     } else if (btnCustomId === "CLOSE") {
       embed.setTitle("閉めました");

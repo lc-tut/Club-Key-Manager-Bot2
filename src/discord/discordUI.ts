@@ -63,10 +63,7 @@ export const mapLabel: Map<Key, string> = new Map([
 // 各状態で表示すべきボタンを管理
 export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
   // 返却済み状態: 「借りる」ボタンのみ表示
-  [
-    "RETURN",
-    new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton),
-  ],
+  ["RETURN", new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton)],
   // 開けた状態: 「閉める」ボタンのみ表示
   ["OPEN", new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton)],
   // 閉めた状態: 「返す」と「開ける」ボタンを表示（リマインダーボタンは動的に追加）
@@ -74,8 +71,8 @@ export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
     "CLOSE",
     !modeConsole
       ? new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(returnButton)
-        .addComponents(openButton)
+          .addComponents(returnButton)
+          .addComponents(openButton)
       : new ActionRowBuilder<ButtonBuilder>().addComponents(returnButton),
   ],
 ]);
