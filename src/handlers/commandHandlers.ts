@@ -52,8 +52,8 @@ export const handleBorrowCommand = async (
 
   // 鍵が返却済みの状態なら借りることができる
   if (keyStatus === "RETURN") {
-    // 鍵の状態を「借りた」に変更
-    const newStatus: Key = "BORROW";
+    // 鍵の状態を「閉めた」に変更
+    const newStatus: Key = "CLOSE";
 
     // ユーザー情報を取得
     const { username, userIconUrl } = getUserInfo(interaction);
@@ -108,10 +108,7 @@ export const handleBorrowCommand = async (
     }
 
     return newStatus;
-  } else if (
-    borrowerInfo &&
-    (keyStatus === "BORROW" || keyStatus === "OPEN" || keyStatus === "CLOSE")
-  ) {
+  } else if (borrowerInfo && (keyStatus === "OPEN" || keyStatus === "CLOSE")) {
     // 既に借りている状態でコマンド実行 → リマインダー開始時間を更新
     const delayMs = (delayMinutes ?? config.reminderTimeMinutes) * 60 * 1000;
 

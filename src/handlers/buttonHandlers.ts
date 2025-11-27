@@ -6,17 +6,8 @@
 import { ButtonInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
 import { isKey, minutesToMs } from "../utils";
-import {
-  getUserInfo,
-  addReminderSettingsToEmbed,
-  saveBorrowerInfo,
-} from "./handlerUtils";
-import {
-  mapLabel,
-  mapOpers,
-  mapPresence,
-  getButtons,
-} from "../discord/discordUI";
+import { getUserInfo, saveBorrowerInfo, getReminderSettingMessage } from "./handlerUtils";
+import { mapLabel, mapOpers, mapPresence, getButtons } from "../discord/discordUI";
 import {
   sendReminderMessage,
   clearReminderTimer,
@@ -40,10 +31,10 @@ export const handleButtonInteraction = async (
   }
 
   // 押されたボタンのカスタムIDを取得
-  const btn = interaction.customId;
+  const btnCustomId = interaction.customId;
 
   // リマインダートグルボタンの特別処理
-  if (btn === "TOGGLE_REMINDER") {
+  if (btnCustomId === "TOGGLE_REMINDER") {
     const newState = toggleReminderEnabled();
 
     // リマインダーOFF時は既存のタイマーをクリア
@@ -77,13 +68,8 @@ export const handleButtonInteraction = async (
     return keyStatus; // 鍵の状態は変更しない
   }
 
-  // カスタムIDがKey型かどうかを確認
-  if (!isKey(btn)) {
-    throw Error("buttonInteraction.customId is not Key");
-  }
-
-  // 押されたボタンに対応する操作関数を取得
-  const oper = mapOpers.get(btn);
+  // カスタムIDに対応する操作関数を取得（mapOpers は文字列キーを使用）
+  const oper = mapOpers.get(btnCustomId);
   if (!oper) {
     throw Error("oper is undefined");
   }
@@ -93,12 +79,6 @@ export const handleButtonInteraction = async (
 
   // 更新後の状態に対応するボタンセットを取得
   const buttonSet = getButtons(newStatus, config.isReminderEnabled);
-
-  // 更新後の状態に対応するラベルを取得
-  const label = mapLabel.get(newStatus);
-  if (!label) {
-    throw Error("label is undefined");
-  }
 
   // 更新後の状態に対応するPresence（ボットのオンライン状態）を取得
   const presence = mapPresence.get(newStatus);
@@ -116,12 +96,25 @@ export const handleButtonInteraction = async (
   const embed = new EmbedBuilder()
     .setColor(Colors.Green)
     .setAuthor({ name: username, iconURL: userIconUrl ?? undefined })
-    .setTitle(`${label}`)
     .setTimestamp();
 
-  // 鍵を借りた時の場合は、リマインダー設定情報を追加
-  if (btn === "BORROW" && newStatus === "BORROW") {
-    addReminderSettingsToEmbed(embed);
+  if (newStatus === "CLOSE") {
+    if (btnCustomId === "BORROW_KEY") {
+      embed.setTitle("借りました");
+      // リマインダー設定情報を追加
+      embed.addFields({
+        name: "⏰ リマインダー設定",
+        value: getReminderSettingMessage(),
+        inline: false
+      });
+    } else if (btnCustomId === "CLOSE") {
+      embed.setTitle("閉めました");
+    }
+  } else {
+    const label = mapLabel.get(newStatus);
+    if (label) {
+      embed.setTitle(label);
+    }
   }
 
   // インタラクションに返信
@@ -146,7 +139,7 @@ export const handleButtonInteraction = async (
   // ==============================
   // 鍵を借りた時の処理
   // ==============================
-  if (btn === "BORROW" && newStatus === "BORROW") {
+  if (btnCustomId === "BORROW_KEY" && newStatus === "CLOSE") {
     // 既存のタイマーがあればクリア
     clearReminderTimer();
 
@@ -176,7 +169,7 @@ export const handleButtonInteraction = async (
   // ==============================
   // 鍵を返した時の処理
   // ==============================
-  if (btn === "RETURN" && newStatus === "RETURN") {
+  if (btnCustomId === "RETURN" && newStatus === "RETURN") {
     clearReminderTimer();
     console.log(`鍵が返却されました。リマインダータイマーをクリアしました。`);
   }

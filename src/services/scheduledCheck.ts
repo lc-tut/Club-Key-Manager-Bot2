@@ -1,4 +1,4 @@
-import { EmbedBuilder, Colors, TextChannel } from "discord.js";
+import { EmbedBuilder, Colors } from "discord.js";
 import { config } from "../config";
 import { borrowerInfo } from "./reminderService";
 import { Client } from "discord.js";
@@ -28,9 +28,7 @@ export const check20OClock = async (client: Client) => {
   if (keyStatus !== "RETURN" && borrowerInfo) {
     try {
       const channel = await client.channels.fetch(borrowerInfo.channelId);
-      if (channel && channel.isTextBased()) {
-        // メッセージ送受信可能なチャンネルにキャスト
-        const textChannel = channel as TextChannel;
+      if (channel && channel.isSendable()) {
         // 埋め込みメッセージを作成
         const embed = new EmbedBuilder()
           .setColor(Colors.Gold) // 黄色で警告を表現
@@ -47,7 +45,7 @@ export const check20OClock = async (client: Client) => {
         );
 
         // メッセージを送信
-        await textChannel.send({
+        await channel.send({
           content: `<@${borrowerInfo.userId}>`, // ユーザーにメンション
           embeds: [embed],
           components: [currentButtonSet], // ボタンも一緒に送信

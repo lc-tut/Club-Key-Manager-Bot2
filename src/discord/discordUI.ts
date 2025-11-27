@@ -11,7 +11,7 @@ import {
 // ボタンを定義
 // 「借りる」ボタン - 緑色（成功）スタイル
 export const borrowButton = new ButtonBuilder()
-  .setCustomId("BORROW")
+  .setCustomId("BORROW_KEY")
   .setLabel("借りる")
   .setStyle(ButtonStyle.Success);
 
@@ -56,48 +56,42 @@ export const createReminderToggleButton = (
 // メッセージに表示するラベルを管理
 export const mapLabel: Map<Key, string> = new Map([
   ["RETURN", "返しました"],
-  ["BORROW", "借りました"],
   ["OPEN", "開けました"],
-  ["CLOSE", "閉めました"],
 ]);
 
 // 鍵の状態とボタンのセットを対応付けるマップ
 // 各状態で表示すべきボタンを管理
 export const mapButtons: Map<Key, ActionRowBuilder<ButtonBuilder>> = new Map([
   // 返却済み状態: 「借りる」ボタンのみ表示
-  ["RETURN", new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton)],
-  // 借りた状態: 操作卓モードでない場合は「開ける」と「返す」、操作卓モードの場合は「返す」のみ
   [
-    "BORROW",
-    !modeConsole
-      ? new ActionRowBuilder<ButtonBuilder>()
-          .addComponents(openButton)
-          .addComponents(returnButton)
-      : new ActionRowBuilder<ButtonBuilder>().addComponents(returnButton),
+    "RETURN",
+    new ActionRowBuilder<ButtonBuilder>().addComponents(borrowButton),
   ],
   // 開けた状態: 「閉める」ボタンのみ表示
   ["OPEN", new ActionRowBuilder<ButtonBuilder>().addComponents(closeButton)],
   // 閉めた状態: 「返す」と「開ける」ボタンを表示（リマインダーボタンは動的に追加）
   [
     "CLOSE",
-    new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(returnButton)
-      .addComponents(openButton),
+    !modeConsole
+      ? new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(returnButton)
+        .addComponents(openButton)
+      : new ActionRowBuilder<ButtonBuilder>().addComponents(returnButton),
   ],
 ]);
 
 // 鍵の状態とそれに対応する操作を紐づけるマップ
 // ボタンが押された時にどの操作関数を実行するかを管理
-export const mapOpers: Map<Key, OperKey> = new Map([
+export const mapOpers: Map<string, OperKey> = new Map([
+  ["BORROW_KEY", borrowKey],
   ["RETURN", returnKey],
-  ["BORROW", borrowKey],
   ["OPEN", openKey],
   ["CLOSE", closeKey],
 ]);
 
 /**
  * 鍵の状態に応じたボタンセットを取得する関数
- * BORROW状態またはCLOSE状態の場合はリマインダートグルボタンを動的に追加
+ * CLOSE状態の場合はリマインダートグルボタンを動的に追加
  * @param keyStatus - 現在の鍵の状態
  * @param isReminderEnabled - リマインダーが有効かどうか
  * @returns ボタンセット
@@ -107,20 +101,6 @@ export const getButtons = (
   isReminderEnabled: boolean
 ): ActionRowBuilder<ButtonBuilder> => {
   const reminderButton = createReminderToggleButton(isReminderEnabled);
-
-  if (keyStatus === "BORROW") {
-    // 借りた状態: 操作卓モードでない場合は「開ける」「返す」「リマインダー」、操作卓モードの場合は「返す」「リマインダー」
-    return !modeConsole
-      ? new ActionRowBuilder<ButtonBuilder>().addComponents(
-          openButton,
-          returnButton,
-          reminderButton
-        )
-      : new ActionRowBuilder<ButtonBuilder>().addComponents(
-          returnButton,
-          reminderButton
-        );
-  }
 
   if (keyStatus === "CLOSE") {
     // 閉めた状態: 「返す」「開ける」「リマインダー」を表示
@@ -146,14 +126,6 @@ export const mapPresence: Map<Key, Presence> = new Map([
     "RETURN",
     {
       status: "invisible",
-      activities: [],
-    },
-  ],
-  // 借りた状態: 退席中状態
-  [
-    "BORROW",
-    {
-      status: "idle",
       activities: [],
     },
   ],

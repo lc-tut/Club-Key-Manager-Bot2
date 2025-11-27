@@ -22,26 +22,36 @@ export const getUserInfo = (
 };
 
 /**
+ * リマインダー設定の説明文を生成するヘルパー関数
+ * @returns リマインダー設定の説明文
+ */
+export const getReminderSettingMessage = (): string => {
+  if (config.isReminderEnabled) {
+    // リマインダーが有効な場合
+    const scheduledCheckInfo = config.isScheduledCheckEnabled
+      ? `\n・定時チェック: ${config.checkHour}時${config.checkMinute}分`
+      : "";
+    return `リマインダーが有効です\n・間隔: ${config.reminderTimeMinutes}分ごと${scheduledCheckInfo}`;
+  } else {
+    // リマインダーが無効な場合
+    const scheduledCheckInfo = config.isScheduledCheckEnabled
+      ? `${config.checkHour}時${config.checkMinute}分`
+      : "無効";
+    return `リマインダーは無効です\n・定時チェック: ${scheduledCheckInfo}`;
+  }
+};
+
+/**
  * リマインダー設定情報を埋め込みメッセージに追加するヘルパー関数
  * @param embed - 埋め込みメッセージ
  * @returns 更新された埋め込みメッセージ
  */
-export const addReminderSettingsToEmbed = (
-  embed: EmbedBuilder
-): EmbedBuilder => {
-  if (config.isReminderEnabled) {
-    embed.addFields({
-      name: "⏰ リマインダー設定",
-      value: `リマインダーが有効です\n・間隔: ${config.reminderTimeMinutes}分ごと\n・定時チェック: ${config.checkHour}時${config.checkMinute}分`,
-      inline: false,
-    });
-  } else {
-    embed.addFields({
-      name: "⏰ リマインダー設定",
-      value: `リマインダーは無効です\n・定時チェック: ${config.isScheduledCheckEnabled ? `${config.checkHour}時${config.checkMinute}分` : "無効"}`,
-      inline: false,
-    });
-  }
+export const addReminderSettingsToEmbed = (embed: EmbedBuilder): EmbedBuilder => {
+  embed.addFields({
+    name: "⏰ リマインダー設定",
+    value: getReminderSettingMessage(),
+    inline: false
+  });
   return embed;
 };
 
