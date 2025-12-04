@@ -23,8 +23,10 @@ try {
 } catch (err) {
   console.error(
     "設定ファイル settings.json の読み込みまたはパースに失敗しました。\n" +
-    "エラー内容: " + err + "\n" +
-    "settings.json が存在しない場合は settings.json.sample をコピーして作成してください。"
+      "エラー内容: " +
+      err +
+      "\n" +
+      "settings.json が存在しない場合は settings.json.sample をコピーして作成してください。"
   );
   process.exit(1);
 }

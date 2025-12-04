@@ -1,4 +1,8 @@
-import { ButtonInteraction, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+} from "discord.js";
 import { BorrowerInfo } from "../types";
 import { config } from "../config";
 import { setBorrowerInfo } from "../services/reminderService";
@@ -8,10 +12,12 @@ import { setBorrowerInfo } from "../services/reminderService";
  * @param interaction - ボタンまたはコマンドのインタラクション
  * @returns ユーザー名とアイコンURL
  */
-export const getUserInfo = (interaction: ButtonInteraction | ChatInputCommandInteraction) => {
+export const getUserInfo = (
+  interaction: ButtonInteraction | ChatInputCommandInteraction
+) => {
   return {
     username: interaction.user.username,
-    userIconUrl: interaction.user.avatarURL()
+    userIconUrl: interaction.user.avatarURL(),
   };
 };
 
@@ -40,11 +46,13 @@ export const getReminderSettingMessage = (): string => {
  * @param embed - 埋め込みメッセージ
  * @returns 更新された埋め込みメッセージ
  */
-export const addReminderSettingsToEmbed = (embed: EmbedBuilder): EmbedBuilder => {
+export const addReminderSettingsToEmbed = (
+  embed: EmbedBuilder
+): EmbedBuilder => {
   embed.addFields({
     name: "⏰ リマインダー設定",
     value: getReminderSettingMessage(),
-    inline: false
+    inline: false,
   });
   return embed;
 };

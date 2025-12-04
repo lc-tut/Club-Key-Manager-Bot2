@@ -5,13 +5,17 @@
 
 import { ChatInputCommandInteraction, Colors, EmbedBuilder } from "discord.js";
 import { Key } from "../types";
-import { getUserInfo, addReminderSettingsToEmbed, saveBorrowerInfo } from "./handlerUtils";
+import {
+  getUserInfo,
+  addReminderSettingsToEmbed,
+  saveBorrowerInfo,
+} from "./handlerUtils";
 import {
   config,
   setReminderTimeMinutes,
   setCheckTime,
   toggleReminderEnabled,
-  toggleScheduledCheckEnabled
+  toggleScheduledCheckEnabled,
 } from "../config";
 import {
   sendReminderMessage,
@@ -78,14 +82,15 @@ export const handleBorrowCommand = async (
       const delayMs = (delayMinutes ?? config.reminderTimeMinutes) * 60 * 1000;
 
       const timerId = setTimeout(() => {
-        sendReminderMessage(
-          client,
-          interaction.user.id,
-          interaction.channelId
-        );
+        sendReminderMessage(client, interaction.user.id, interaction.channelId);
       }, delayMs);
 
-      saveBorrowerInfo(interaction.user.id, username, interaction.channelId, timerId);
+      saveBorrowerInfo(
+        interaction.user.id,
+        username,
+        interaction.channelId,
+        timerId
+      );
 
       console.log(
         `${username}が鍵を借りました。${delayMinutes ?? config.reminderTimeMinutes}分後にリマインダーを送信します。`
@@ -121,7 +126,12 @@ export const handleBorrowCommand = async (
       );
     }, delayMs);
 
-    saveBorrowerInfo(borrowerInfo.userId, borrowerInfo.username, borrowerInfo.channelId, timerId);
+    saveBorrowerInfo(
+      borrowerInfo.userId,
+      borrowerInfo.username,
+      borrowerInfo.channelId,
+      timerId
+    );
 
     await interaction.reply({
       content: `リマインダー開始時間を${delayMinutes ?? config.reminderTimeMinutes}分後に設定しました。`,
@@ -225,7 +235,9 @@ export const handleCheckTimeCommand = async (
       content: `定時チェック時刻を${hour}時${minute}分に設定しました。`,
       components: [getKeyButtonsForCommand(keyStatus)],
     });
-    console.log(`定時チェック時刻: ${hour}時${minute}分に変更し、スケジュールを再設定しました。`);
+    console.log(
+      `定時チェック時刻: ${hour}時${minute}分に変更し、スケジュールを再設定しました。`
+    );
   }
 };
 
@@ -241,10 +253,26 @@ export const handleStatusCommand = async (
     .setColor(Colors.Blue)
     .setTitle("⚙️ アラーム設定状況")
     .addFields(
-      { name: "リマインダー機能", value: config.isReminderEnabled ? "✅ ON" : "❌ OFF", inline: true },
-      { name: "定時チェック機能", value: config.isScheduledCheckEnabled ? "✅ ON" : "❌ OFF", inline: true },
-      { name: "リマインダー時間", value: `${config.reminderTimeMinutes}分`, inline: true },
-      { name: "定時チェック時刻", value: `${config.checkHour}時${config.checkMinute}分`, inline: true }
+      {
+        name: "リマインダー機能",
+        value: config.isReminderEnabled ? "✅ ON" : "❌ OFF",
+        inline: true,
+      },
+      {
+        name: "定時チェック機能",
+        value: config.isScheduledCheckEnabled ? "✅ ON" : "❌ OFF",
+        inline: true,
+      },
+      {
+        name: "リマインダー時間",
+        value: `${config.reminderTimeMinutes}分`,
+        inline: true,
+      },
+      {
+        name: "定時チェック時刻",
+        value: `${config.checkHour}時${config.checkMinute}分`,
+        inline: true,
+      }
     )
     .setTimestamp();
 
@@ -293,11 +321,7 @@ export const handleOwnerCommand = async (
   if (config.isReminderEnabled) {
     // 新しい持ち主用に新しいタイマーを設定（カウントをリセット）
     const timerId = setTimeout(() => {
-      sendReminderMessage(
-        client,
-        newOwner.id,
-        interaction.channelId
-      );
+      sendReminderMessage(client, newOwner.id, interaction.channelId);
     }, minutesToMs(config.reminderTimeMinutes));
 
     saveBorrowerInfo(newOwner.id, newOwnerName, interaction.channelId, timerId);
